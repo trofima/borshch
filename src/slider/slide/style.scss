@@ -1,0 +1,12 @@
+@import "../../common/styles/reset-component.scss";
+@import "../../common/styles/common.scss";
+
+:host {
+  @include flex-center;
+  background: var(--background-color, transparent);
+  box-sizing: border-box;
+  flex: 1 0 auto;
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+}

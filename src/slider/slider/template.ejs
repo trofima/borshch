@@ -1,0 +1,13 @@
+<link rel="stylesheet" href="./style.scss">
+
+<section id="background" class="background"><slot name="background"></slot></section>
+
+<section id="slider" class="slider"><slot name="0"></slot></section>
+
+<section class="foreground">
+  <slot name="foreground"></slot>
+  <div id="prev" class="prev nav-button"><slot name="prev"></slot></div>
+  <div id="next" class="next nav-button"><slot name="next"></slot></div>
+</section>
+
+

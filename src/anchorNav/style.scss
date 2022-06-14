@@ -1,0 +1,13 @@
+@import "../common/styles/reset-component.scss";
+@import "../common/styles/common.scss";
+
+:host {
+  pointer-events: auto;
+  contain: none;
+}
+
+:host([horizontal]) {
+  > nav {
+    @include flex-center;
+  }
+}
