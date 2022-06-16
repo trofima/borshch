@@ -147,7 +147,7 @@ class BaseElementWrapper {
   }
 
   style(styles) {
-    this.get().style.cssText = Object.keys(styles).reduce((acc, prop) => `${acc} ${prop}: ${styles[prop]};`, ``)
+    this.get().style.cssText = Object.keys(styles).reduce((acc, prop) => `${acc} ${prop}: ${styles[prop]};`, '')
 
     return this
   }

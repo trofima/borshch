@@ -1,10 +1,20 @@
 import Component from '../../common/Component.js'
+import mixin, {ReflectAttributes} from '../../common/utils/mixin'
 import BorshchRoute from './BorshchRoute'
 import BorshchDefaultRoute from './BorshchDefaultRoute'
 import render from './borshchRouter.ejs'
 import borshchRouterManager from './borshchRouterManagerInstance'
 
-export default class BorshchRouter extends Component {
+
+//TODO: animations
+//TODO: meta tagss
+export default class BorshchRouter extends mixin(
+  Component,
+  ReflectAttributes(
+    'root', 'transition', 'easing', 'direction',
+    {name: 'duration', parse: Number, stringify: String},
+  ),
+) {
   #contentRef = this.host('#content')
 
   render() {

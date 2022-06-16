@@ -1,7 +1,7 @@
-import Slide from './slide';
-import Slider from './slider';
+import Slide from './slide'
+import Slider from './slider'
 
-customElements.define(Slide.componentName, Slide);
-customElements.define(Slider.componentName, Slider);
+customElements.define(Slide.componentName, Slide)
+customElements.define(Slider.componentName, Slider)
 
-export {Slide, Slider};
+export {Slide, Slider}

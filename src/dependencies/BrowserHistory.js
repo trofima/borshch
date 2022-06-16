@@ -18,7 +18,7 @@ export default class BrowserHistory extends Emitter {
 
   navigate(path) {
     window.history.pushState({}, '', path)
-    window.dispatchEvent(new PopStateEvent('popstate'));
+    window.dispatchEvent(new PopStateEvent('popstate'))
   }
 
   #path = window.location.pathname

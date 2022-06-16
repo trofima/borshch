@@ -1,14 +1,14 @@
 function init(data) {
   window.customElements.whenDefined('playground-app')
-    .then(() => document.querySelector('playground-app').setData(data));
+    .then(() => document.querySelector('playground-app').setData(data))
 
-  appendScript('dist/bundle.js');
+  appendScript('dist/bundle.js')
 }
 
 function appendScript(src) {
-  const script = document.createElement('script');
+  const script = document.createElement('script')
 
-  script.src = src;
-  script.type = 'module';
-  document.body.appendChild(script);
+  script.src = src
+  script.type = 'module'
+  document.body.appendChild(script)
 }
