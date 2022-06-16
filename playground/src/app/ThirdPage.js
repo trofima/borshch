@@ -8,8 +8,10 @@ export default class ThirdPage extends Component {
 
   #render() {
     return `
-      <h1>Third Page</h1>
-      <div>Content</div>
+      <div style="margin-top: 40px">
+        <h1>Third Page</h1>
+        <div>Content</div>
+      </div>
     `
   }
 }

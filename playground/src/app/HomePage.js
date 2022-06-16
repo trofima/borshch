@@ -8,8 +8,10 @@ export default class HomePage extends Component {
 
   #render() {
     return `
-      <h1>Home Page</h1>
-      <div>Content</div>
+      <div style="margin-top: 40px">
+        <h1>Home Page</h1>
+        <div>Content</div>
+      </div>
     `
   }
 }

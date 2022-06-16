@@ -8,8 +8,10 @@ export default class SecondPage extends Component {
 
   #render() {
     return `
-      <h1>Second Page</h1>
-      <div>Content</div>
+      <div style="margin-top: 40px">
+        <h1>Second Page</h1>
+        <div>Content</div>
+      </div>
     `
   }
 }
