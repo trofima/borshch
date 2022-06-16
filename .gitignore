@@ -1,1 +1,4 @@
 node_modules/
+playground/dist/
+.vscode
+!.vscode/launch.json

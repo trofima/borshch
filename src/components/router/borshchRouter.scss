@@ -1,0 +1,51 @@
+@import "../../common/styles/reset-component.scss";
+
+:host {
+  & > #container {
+    & > #content {
+      position: relative;
+    }
+
+    & > #leaving {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      top: 0;
+    }
+  }
+}
+
+:host([transition="dissolve"]) {
+  & > #container {
+    & > #content {
+      opacity: 1;
+    }
+
+    & > #leaving {
+      opacity: 0;
+    }
+  }
+}
+
+:host([transition="slide"]) {
+  & > #container {
+    transform: translate(0);
+
+    & > #container > #leaving {
+      transform: translate(0);
+    }
+  }
+}
+
+:host([transition="slide"][direction="left"]) {
+  & > #container > #content {
+    transform: translate(-100%);
+  }
+}
+
+:host([transition="slide"][direction="right"]) {
+  & > #container > #content {
+    transform: translate(100%);
+  }
+}

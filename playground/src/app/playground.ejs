@@ -1,0 +1,18 @@
+<borshch-router transition="dissolve" duration="300">
+    <borshch-route path="/">
+      <template><home-page></home-page></template>
+    </borshch-route>
+    <borshch-route path="/second">
+      <template><second-page></second-page></template>
+    </borshch-route>
+    <borshch-route path="/third">
+      <template><third-page></third-page></template>
+    </borshch-route>
+    <borshch-default-route>
+        <template>This route is not found on this site. Sorry...</template>
+    </borshch-default-route>
+</borshch-router>
+
+<borshch-link path="/">Home</borshch-link>
+<borshch-link path="/second">Second</borshch-link>
+<borshch-link path="/third">Third</borshch-link>

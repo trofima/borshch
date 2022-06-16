@@ -92,7 +92,13 @@ class BaseElementWrapper {
     return this
   }
 
-  append(...args) {
+  append(...args) { //TODO: duplicate
+    this.get().append(...args)
+
+    return this
+  }
+
+  appendChild(...args) {
     this.get().append(...args)
 
     return this
@@ -104,7 +110,13 @@ class BaseElementWrapper {
     return this
   }
 
-  replace(...args) {
+  replace(...args) { //TODO: duplicate
+    this.clear().append(...args)
+
+    return this
+  }
+
+  replaceChildren(...args) {
     this.clear().append(...args)
 
     return this

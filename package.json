@@ -19,11 +19,17 @@
   },
   "homepage": "https://github.com/trofima/borshch#readme",
   "scripts": {
-    "start": "node playground/index.js",
+    "start": "node playground/server.js",
     "test": ":"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "chai": "^4.3.6",
+    "chai-spies": "^1.0.0",
     "ejs": "^3.1.8",
-    "express": "^4.18.1"
+    "express": "^4.18.1",
+    "mocha": "^10.0.0",
+    "rollup": "^2.75.6",
+    "rollup-plugin-ejs": "^2.3.0"
   }
 }

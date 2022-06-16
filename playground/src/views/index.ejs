@@ -2,10 +2,11 @@
 <html>
   <head>
     <title>Borshch playground</title>
-
-    <script src="../index.js"></script>
   </head>
   <body>
-    <p>Shalom!</p>
+    <playground-app></playground-app>
+
+    <script src="/src/index.js"></script>
+    <script>init(<%- locals.data %>)</script>
   </body>
 </html>
