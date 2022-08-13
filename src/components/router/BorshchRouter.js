@@ -2,12 +2,13 @@ import Component from '../../common/Component.js'
 import mixin, {ReflectAttributes} from '../../common/utils/mixin'
 import BorshchRoute from './BorshchRoute'
 import BorshchDefaultRoute from './BorshchDefaultRoute'
-import render from './borshchRouter.ejs'
 import borshchRouterManager from './borshchRouterManagerInstance'
+// import render from './borshchRouter.ejs'
 
 
 //TODO: animations
-//TODO: meta tagss
+//TODO: meta tags
+//TODO: root
 export default class BorshchRouter extends mixin(
   Component,
   ReflectAttributes(
@@ -15,10 +16,13 @@ export default class BorshchRouter extends mixin(
     {name: 'duration', parse: Number, stringify: String},
   ),
 ) {
-  #contentRef = this.host('#content')
+  // #containerRef = this.host()
+  // #contentRef = this.host('#content')
+  // #leavingRef = this.host('#leaving')
 
   render() {
-    return render()
+    // return render()
+    return ''
   }
 
   async onConnected() {
@@ -32,11 +36,13 @@ export default class BorshchRouter extends mixin(
     borshchRouterManager.init({
       defaultRoute,
       routes: routes,
-      structure: {
-        content: this.#contentRef,
+      container: this.host(),
+      transition: {
+        name: this.transition,
+        duration: this.duration,
       },
     })
   }
 }
 
-customElements.define(BorshchRouter.componentName, BorshchRouter);
+customElements.define(BorshchRouter.componentName, BorshchRouter)

@@ -104,6 +104,12 @@ class BaseElementWrapper {
     return this
   }
 
+  removeChild(...args) {
+    this.get().removeChild(...args)
+
+    return this
+  }
+
   prepend(...args) {
     this.get().prepend(...args)
 
@@ -116,7 +122,7 @@ class BaseElementWrapper {
     return this
   }
 
-  replaceChildren(...args) {
+  replaceChildren(...args) { // TODO: get children array?
     this.clear().append(...args)
 
     return this
@@ -147,6 +153,12 @@ class BaseElementWrapper {
   }
 
   style(styles) {
+    this.get().style.cssText = Object.keys(styles).reduce((acc, prop) => `${acc} ${prop}: ${styles[prop]};`, '')
+
+    return this
+  }
+
+  setStyle(styles) {
     this.get().style.cssText = Object.keys(styles).reduce((acc, prop) => `${acc} ${prop}: ${styles[prop]};`, '')
 
     return this

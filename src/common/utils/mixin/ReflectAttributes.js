@@ -1,17 +1,17 @@
 export default (...attrs) => Base => class ReflectingAttributes extends Base {
   constructor(...args) {
-    super(...args);
+    super(...args)
 
     const reflectionDescriptors = attrs.reduce((descriptor, attr) => {
       if (typeof attr === 'string')
-        descriptor[attr] = this.#createAttrDescriptor({name: attr});
+        descriptor[attr] = this.#createAttrDescriptor({name: attr})
       else if (typeof attr === 'object')
-        descriptor[attr.name] = this.#createAttrDescriptor(attr);
+        descriptor[attr.name] = this.#createAttrDescriptor(attr)
 
-      return descriptor;
-    }, {});
+      return descriptor
+    }, {})
 
-    attrs.length && Object.defineProperties(this, reflectionDescriptors);
+    attrs.length && Object.defineProperties(this, reflectionDescriptors)
   }
 
   #createAttrDescriptor({name, parse, stringify}) {
@@ -24,12 +24,12 @@ export default (...attrs) => Base => class ReflectingAttributes extends Base {
   #getAttr(name, parse = value => value || true) {
     return this.hasAttribute(name)
       ? parse(this.getAttribute(name))
-      : undefined;
+      : undefined
   }
 
   #setAttr(name, value, stringify = value => (value === true ? '' : value)) {
     return value
       ? this.setAttribute(name, stringify(value))
-      : this.removeAttribute(name);
+      : this.removeAttribute(name)
   }
 }

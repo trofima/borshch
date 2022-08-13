@@ -8,6 +8,7 @@ import {browserHistory} from '../../common/services'
 import {connect} from '../../common/store.js'
 import ExtendedMap from '../../common/utils/ExtendedMap.js'
 import Deferred from '../../common/utils/Deferred.js'
+
 export default class BorshchRouter extends mixin(
   Component,
   HistoryListener,

@@ -1,4 +1,4 @@
-import {Component} from "../../../src";
+import {Component} from '../../../src'
 
 
 export default class SecondPage extends Component {
@@ -8,9 +8,11 @@ export default class SecondPage extends Component {
 
   #render() {
     return `
-      <div style="margin-top: 40px">
-        <h1>Second Page</h1>
-        <div>Content</div>
+      <div style="overflow: hidden;">
+        <div style="margin-top: 40px">
+          <h1>Second Page</h1>
+          <div>Content</div>
+        </div>
       </div>
     `
   }

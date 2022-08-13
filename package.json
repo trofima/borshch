@@ -35,10 +35,12 @@
     "rollup-plugin-ejs": "^2.3.0"
   },
   "eslintConfig": {
+    "extends": "eslint:recommended",
     "env": {
       "browser": true,
       "node": true,
-      "mocha": true
+      "mocha": true,
+      "es2022": true
     },
     "ignorePatterns": ["playground/dist/**/*"],
     "parserOptions": {
@@ -46,8 +48,9 @@
       "ecmaVersion": 13
     },
     "rules": {
-      "quotes": ["error", "single"],
-      "semi": ["error", "never"]
+      "quotes": ["warn", "single"],
+      "semi": ["warn", "never"],
+      "no-trailing-spaces": ["warn"]
     }
   }
 }
