@@ -1,4 +1,4 @@
-import Component from '../../common/Component.js'
+import Component from '../../common/DeprecatedComponent.js'
 import mixin, {ReflectAttributes} from '../../common/utils/mixin'
 import BorshchRoute from './BorshchRoute'
 import BorshchDefaultRoute from './BorshchDefaultRoute'

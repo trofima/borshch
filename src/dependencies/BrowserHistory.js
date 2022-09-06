@@ -1,4 +1,4 @@
-import Emitter from '../common/utils/emitter'
+import Emitter from '../common/utils/Emitter'
 import {removeEndingSlash} from '../common/utils'
 
 export default class BrowserHistory extends Emitter {

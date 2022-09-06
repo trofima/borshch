@@ -1,6 +1,6 @@
 import {assert} from 'chai'
 import BorshchRouterManager, {BorshchRouterError} from './BorshchRouterManager'
-import Deferred from '../../common/utils/Deferred'
+import {ElementMock, RouteMock, HistoryMock} from '../../testUtilities'
 
 suite('Borshch route manager', () => {
   suite('initialization', () => {
@@ -140,11 +140,11 @@ suite('Borshch route manager', () => {
 
         await Promise.all([leavingRoute.animation.succeed(0), enteringRoute.animation.succeed(0)])
 
-        assert.deepEqual(leavingRoute.animation.operationArguments, [{
+        assert.deepEqual(leavingRoute.animation.callArguments, [{
           transitions: [{opacity: 1}, {opacity: 0}],
           options: {duration: 100, fill: 'forwards'},
         }], 'wrong leaving route animations settings')
-        assert.deepEqual(enteringRoute.animation.operationArguments, [{
+        assert.deepEqual(enteringRoute.animation.callArguments, [{
           transitions: [{opacity: 0}, {opacity: 1}],
           options: {duration: 100, fill: 'forwards'}
         }], 'wrong entering route animations settings')
@@ -166,11 +166,11 @@ suite('Borshch route manager', () => {
 
         await Promise.all([leavingRoute.animation.succeed(0), enteringRoute.animation.succeed(0)])
 
-        assert.deepEqual(leavingRoute.animation.operationArguments, [{
+        assert.deepEqual(leavingRoute.animation.callArguments, [{
           transitions: [{opacity: 1}, {opacity: 0}],
           options: {duration: 200, fill: 'forwards'},
         }], 'wrong leaving route animations settings')
-        assert.deepEqual(enteringRoute.animation.operationArguments, [{
+        assert.deepEqual(enteringRoute.animation.callArguments, [{
           transitions: [{opacity: 0}, {opacity: 1}],
           options: {duration: 200, fill: 'forwards'}
         }], 'wrong entering route animations settings')
@@ -327,8 +327,8 @@ class TestFixtures { //TODO: move mocks to files
   async build() {
     const defaultRoute = new RouteMock()
     const historyMock = new HistoryMock({path: this.#historyPath})
-    const borshchRouteManager = new BorshchRouterManager({history: historyMock})
     const containerMock = new ElementMock()
+    const borshchRouteManager = new BorshchRouterManager({history: historyMock})
 
     await borshchRouteManager.init({
       defaultRoute,
@@ -347,192 +347,4 @@ class TestFixtures { //TODO: move mocks to files
   #historyPath = '/'
   #transition
   #initialTransitionShouldBeReset = false
-}
-
-class RouteMock {
-  constructor({path} = {}) {
-    this.#path = path
-  }
-
-  get rendered() {return this.#rendered}
-  get path() {return this.#path}
-  get style() {return this.#style}
-  get animation() {return this.#animation}
-  get currentAnimation() {return this.#currentAnimation}
-
-  render() {
-    this.#rendered = true
-  }
-
-  clear() {
-    this.#rendered = false
-  }
-
-  setStyle(style) {
-    this.#style = style
-  }
-
-  animate(transitions, options) {
-    this.#animation.create({transitions, options})
-    const index = this.#animation.operationCount - 1
-
-    this.#currentAnimation = new AnimationMock(this.#animation, index)
-
-    return this.#currentAnimation
-  }
-
-  #path
-  #rendered = false
-  #style = {}
-  #animation = new AsyncOperationMock('route animation')
-  #currentAnimation
-}
-
-class ElementMock {
-  get children() {return this.#children}
-  get removed() {return this.#removed}
-
-  replaceChildren(el) {
-    this.#children = [el]
-  }
-
-  appendChild(el) {
-    this.#children.push(el)
-  }
-
-  removeChild(el) {
-    this.#children = this.#children.filter(child => child !== el)
-  }
-
-  #children = []
-  #removed = false
-}
-
-class HistoryMock { //TODO: simplify mock??
-  constructor({path}) {
-    this.#path = path
-  }
-
-  get path() {return this.#path}
-  get navigateCallCount() {return this.#navigateCallCount}
-
-  navigate(path) {
-    this.#path = path
-    this.#navigateCallCount++
-  }
-
-  on(event, listener) {
-    this.#listenersByEvent[event] = [...this.#listenersByEvent[event] ?? [], listener]
-  }
-
-  emit(event, nextPath) {
-    const prevPath = this.#path
-
-    this.#path = nextPath
-    this.#listenersByEvent[event]?.forEach(listener => listener({prevPath, nextPath}))
-  }
-
-  #path = ''
-  #listenersByEvent = {}
-  #navigateCallCount = 0
-}
-
-class AsyncOperationMock {
-  constructor(name) {
-    this.#name = name
-  }
-
-  get operations() {
-    return this.#operations
-  }
-
-  get operationArguments() {
-    return this.#operationArguments
-  }
-
-  get operationCount() {
-    return this.#operations.length
-  }
-
-  get name() {
-    return this.#name
-  }
-
-  create(args) {
-    const deferredOperation = new Deferred()
-
-    this.#operationArguments.push(args)
-    this.#operations.push(deferredOperation)
-
-    if (!this.#deferred) queueMicrotask(() => this.#error
-      ? deferredOperation.reject(this.#error)
-      : deferredOperation.resolve(this.#result))
-
-    return deferredOperation.promise
-  }
-
-  reset() {
-    this.#operationArguments = []
-    this.#operations = []
-  }
-
-  at(index) {
-    return this.#operations[index]
-  }
-
-  resolveByDefault(response) {
-    this.#result = response
-  }
-
-  rejectByDefault(error) {
-    this.#error = error
-  }
-
-  defer() {
-    this.#deferred = true
-  }
-
-  async succeed(index, value) {
-    const deferredOperation = this.at(index)
-
-    if (deferredOperation) {
-      deferredOperation.resolve(value)
-      return await deferredOperation.promise
-    } else throw new Error(`Async ${this.name} by index ${index} not found`)
-  }
-
-  async fail(index, error) {
-    const deferredOperation = this.at(index)
-
-    if (deferredOperation) {
-      deferredOperation.reject(error)
-      return await deferredOperation.promise
-    } else throw new Error(`Async ${this.name} by index ${index} not found`)
-  }
-
-  #name = ''
-  #operationArguments = []
-  #operations = []
-  #result = undefined
-  #error = undefined
-  #deferred = false
-}
-
-class AnimationMock {
-  constructor(animation, index) {
-    this.#animation = animation
-    this.#index = index
-  }
-
-  get isFinishing() {return this.#isFinishing}
-  get playing() {return this.#animation.at(this.#index).promise}
-
-  async finish() {
-    this.#isFinishing = true
-    return this.#animation.succeed(this.#index)
-  }
-
-  #animation
-  #index
-  #isFinishing = false
 }

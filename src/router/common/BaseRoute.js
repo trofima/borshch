@@ -1,4 +1,4 @@
-import Component from '../../common/Component.js';
+import Component from '../../common/DeprecatedComponent.js';
 
 function valid(children) {
   const tpl = children[0];
