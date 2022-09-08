@@ -50,7 +50,8 @@
     "rules": {
       "quotes": ["warn", "single"],
       "semi": ["warn", "never"],
-      "no-trailing-spaces": ["warn"]
+      "no-trailing-spaces": ["warn"],
+      "no-unused-vars": ["warn"]
     }
   }
 }

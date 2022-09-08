@@ -15,6 +15,10 @@ export default class HistoryMock { //TODO: simplify mock??
     this.#listenersByEvent[event] = [...this.#listenersByEvent[event] ?? [], listener]
   }
 
+  off(event, listener) {
+    throw new Error('not implemented')
+  }
+
   emit(event, nextPath) {
     const prevPath = this.#path
 

@@ -240,23 +240,7 @@ export default class Component extends HTMLElement {
     this.attachShadow({mode: 'open'})
   }
 
-  connectedCallback() {
-    /**
-     * Called every time the element is inserted into the DOM.
-     * Useful for running setup code, such as fetching resources or rendering.
-     * Generally, you should try to delay work until this time.
-     * */
-    this.onConnected()
-  }
-
-  disconnectedCallback() {
-    /**
-     * Called every time the element is removed from the DOM.
-     * Useful for running clean up code (removing event listeners, etc.).
-     * */
-
-    this.onDisconnected()
-  }
+  c
 
   attributeChangedCallback(attrName, oldVal, newVal) {
     /**

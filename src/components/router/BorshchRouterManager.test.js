@@ -286,7 +286,7 @@ suite('Borshch route manager', () => {
         )
       })
 
-      test('waits for finishing of entering animation in init', async() => {
+      test('wait for finishing of entering animation in init', async() => {
         const enteringRoute = new RouteMock({path: '/'})
         enteringRoute.animation.defer()
         const initializing = new TestFixtures()

@@ -1,8 +1,8 @@
-import BorshchDefaultRoute from './BorshchDefaultRoute'
+import {BorshchDefaultRoute} from './BorshchDefaultRoute'
 import mixin, {ReflectAttributes} from '../../common/utils/mixin'
 import {removeEndingSlash} from '../../common/utils'
 
-export default class BorshchRoute extends mixin(
+class BorshchRoute extends mixin(
   BorshchDefaultRoute,
   ReflectAttributes({name: 'path', stringify: removeEndingSlash}),
 ) {
@@ -12,4 +12,4 @@ export default class BorshchRoute extends mixin(
   }
 }
 
-customElements.define(BorshchRoute.componentName, BorshchRoute)
+export default BorshchRoute.define()

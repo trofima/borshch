@@ -29,6 +29,10 @@ export default class BorshchRouterManager {
     this.#history.on(event, listener)
   }
 
+  off(event, listener) { //TODO:
+    // this.#history.off(event, listener)
+  }
+
   #routes
   #defaultRoute
   #container
@@ -70,7 +74,7 @@ export default class BorshchRouterManager {
       const prevRouteAnimation = prevRoute.animate(...this.#createAnimationOptions(false))
       this.#routeTransitionAnimations.push(prevRouteAnimation)
 
-      await prevRouteAnimation.playing //TODO: implement new component api
+      await prevRouteAnimation.playing
 
       this.#container.removeChild(prevRoute)
       prevRoute.clear()

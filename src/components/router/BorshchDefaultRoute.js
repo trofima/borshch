@@ -1,4 +1,4 @@
-import Component from '../../common/DeprecatedComponent.js'
+import {BorshchComponent} from '../../common/Component'
 
 function valid(children) {
   const tpl = children[0]
@@ -14,29 +14,24 @@ function valid(children) {
   return true
 }
 
-export default class BorshchDefaultRoute extends Component {
-  constructor(...args) {
-    super(...args)
-    this.tpl = null
-  }
-
+export class BorshchDefaultRoute extends BorshchComponent {
   onConnected() {
-    this.tpl = valid(this.children) ? this.children[0] : document.createElement('template')
+    this.#template = valid(this.children)
+      ? this.children[0]
+      : document.createElement('template')
   }
 
   onDisconnected() {}
 
   render() {
-    this.host().replace(this.tpl.content.cloneNode(true))
+    this.host.replaceChildren(this.#template.content.cloneNode(true))
   }
 
   clear() {
-    this.host().clear()
+    this.host.removeChildren()
   }
 
-  setStyle(style) {
-    this.element().setStyle(style)
-  }
+  #template = null
 }
 
-customElements.define(BorshchDefaultRoute.componentName, BorshchDefaultRoute)
+export default BorshchDefaultRoute.define()

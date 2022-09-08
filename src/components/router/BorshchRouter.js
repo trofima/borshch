@@ -1,28 +1,22 @@
-import Component from '../../common/DeprecatedComponent.js'
+import {BorshchComponent} from '../../common/Component'
 import mixin, {ReflectAttributes} from '../../common/utils/mixin'
 import BorshchRoute from './BorshchRoute'
 import BorshchDefaultRoute from './BorshchDefaultRoute'
 import borshchRouterManager from './borshchRouterManagerInstance'
-// import render from './borshchRouter.ejs'
+import render from './borshchRouter.ejs'
 
 
-//TODO: animations
 //TODO: meta tags
 //TODO: root
-export default class BorshchRouter extends mixin(
-  Component,
+class BorshchRouter extends mixin(
+  BorshchComponent,
   ReflectAttributes(
     'root', 'transition', 'easing', 'direction',
     {name: 'duration', parse: Number, stringify: String},
   ),
 ) {
-  // #containerRef = this.host()
-  // #contentRef = this.host('#content')
-  // #leavingRef = this.host('#leaving')
-
   render() {
-    // return render()
-    return ''
+    return render()
   }
 
   async onConnected() {
@@ -36,7 +30,7 @@ export default class BorshchRouter extends mixin(
     borshchRouterManager.init({
       defaultRoute,
       routes: routes,
-      container: this.host(),
+      container: this.host,
       transition: {
         name: this.transition,
         duration: this.duration,
@@ -45,4 +39,4 @@ export default class BorshchRouter extends mixin(
   }
 }
 
-customElements.define(BorshchRouter.componentName, BorshchRouter)
+export default BorshchRouter.define()

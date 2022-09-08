@@ -1,245 +1,129 @@
-import ExtendedMap from './utils/ExtendedMap.js'
-import Deferred from './utils/Deferred.js'
+import {pascalToDashCase, elementDefined} from '../utilities'
 
-const pascalToDashCase = str => str
-  ? str.replace(/([A-Z])/g, (match, upperCaseLetter, offset) =>
-      `${offset ? '-' : ''}${upperCaseLetter[0].toLowerCase()}`)
-  : ''
-
-const bindTo = (el, eventName, listener) => el.addEventListener(eventName, listener)
-const unbindFrom = (el, eventName, listener) => el.removeEventListener(eventName, listener)
-const elementNotFound = selector => () =>
-  console.warn(`Component: Nothing was found by the selector: ${selector}. Listeners weren't added.\nProbably you are binding before connect or the selector really doesn't match anything.`)
-const whenDefined = async Type => Type.componentName && (await customElements.whenDefined(Type.componentName))
-
-const applyOnEachElementFrom = (selection, fn, onError) => {
-  if (selection instanceof Element || selection instanceof Window || selection instanceof Document)
-    return fn(selection)
-  else if (selection instanceof NodeList)
-    return selection.forEach(el => fn(el))
-
-  return onError()
-}
-
-const createNodeFrom = html => {
-  const tpl = document.createElement('template')
-
-  tpl.innerHTML = html
-  
-  return tpl.content.cloneNode(true)
-}
-
-class BaseElementWrapper {
-  #animation
-  #elementEventMap
-  #connected
-  #selector
-
-  get animation() {
-    return this.#animation
+export class BorshchElement {
+  constructor(element) {
+    this.#element = element
   }
 
-  constructor({elementEventMap, selector, connected, select}) {
-    this.#elementEventMap = elementEventMap
-    this.#connected = connected
-    this.#selector = selector
-    this.select = select
+  get element() {return this.#element}
+
+  appendChild(element) {
+    this.#element.append(element)
   }
 
-  select() {}
-
-  get() {
-    return this.select()
+  removeChild(element) {
+    this.#element.removeChild(element)
   }
 
-  on(eventName, listener) {
-    applyOnEachElementFrom(
-      this.select(),
-      el => {
-        const eventListenerMap = this.#elementEventMap.getOrSet(el, new ExtendedMap())
-        const listeners = eventListenerMap.getOrSet(eventName, new Set())
-
-        listeners.add(listener)
-
-        if (this.#connected) bindTo(el, eventName, listener)
-      },
-      elementNotFound(this.#selector),
-    )
-
-    return this
+  replaceChildren(...elements) {
+    this.#element.innerHTML = ''
+    this.#element.append(...elements)
   }
 
-  off(eventName, listener) { //TODO: trofima: off all
-    applyOnEachElementFrom(
-      this.select(),
-      el => {
-        const eventListenerMap = this.#elementEventMap.get(el)
-        const listeners = eventListenerMap.get(eventName)
+  attachChild(htmlString) {
+    const tpl = document.createElement('template')
 
-        listeners.delete(listener)
-
-        if (this.#connected) unbindFrom(el, eventName, listener)
-      },
-      elementNotFound(this.#selector),
-    )
-
-    return this
+    tpl.innerHTML = htmlString
+    this.#element.append(tpl.content.cloneNode(true))
   }
 
-  clear() {
-    this.get().innerHTML = ''
-
-    return this
-  }
-
-  append(...args) { //TODO: duplicate
-    this.get().append(...args)
-
-    return this
-  }
-
-  appendChild(...args) {
-    this.get().append(...args)
-
-    return this
-  }
-
-  removeChild(...args) {
-    this.get().removeChild(...args)
-
-    return this
-  }
-
-  prepend(...args) {
-    this.get().prepend(...args)
-
-    return this
-  }
-
-  replace(...args) { //TODO: duplicate
-    this.clear().append(...args)
-
-    return this
-  }
-
-  replaceChildren(...args) { // TODO: get children array?
-    this.clear().append(...args)
-
-    return this
-  }
-
-  remove(...args) {
-    this.get()?.remove(...args)
-
-    return this
-  }
-
-  attach(html) {
-    this.append(createNodeFrom(html))
-
-    return this
-  }
-
-  pretach(html) {
-    this.prepend(createNodeFrom(html))
-
-    return this
-  }
-
-  reattach(html) {
-    this.replace(createNodeFrom(html))
-
-    return this
-  }
-
-  style(styles) {
-    this.get().style.cssText = Object.keys(styles).reduce((acc, prop) => `${acc} ${prop}: ${styles[prop]};`, '')
-
-    return this
+  removeChildren() {
+    this.#element.innerHTML = ''
   }
 
   setStyle(styles) {
-    this.get().style.cssText = Object.keys(styles).reduce((acc, prop) => `${acc} ${prop}: ${styles[prop]};`, '')
+    this.#element.style.cssText = Object
+      .keys(styles)
+      .reduce((acc, prop) => `${acc} ${prop}: ${styles[prop]};`, '')
 
     return this
   }
 
-  animate(...args) {
-    this.#animation = this.get().animate(...args)
+  animate(keyframes, options) {
+    const animation = this.#element.animate(keyframes, options)
 
-    return this.#animation.finished
+    return {
+      get playing() {return animation.finished},
+
+      finish: () => animation.finish(),
+    }
   }
 
-  async transit({from, to}, options) {
-    if (from) await this.animate([from, to], options)
-    
-    this.style(to) //TODO: use animation.commitStyles()
+  select(selector) {
+    return this.#element.querySelectorAll(selector)
   }
+
+  #element
 }
 
-class ElementWrapper extends BaseElementWrapper {
-  #rootEl
-  #selector
-
-  constructor({elementEventMap, rootEl, selector, connected}) {
-    super({
-      elementEventMap, connected, selector,
-      select: () => selector ? rootEl.querySelector(selector) : rootEl,
-    })
-    this.#rootEl = rootEl
-    this.#selector = selector
+export class BorshchHtmlElement extends HTMLElement {
+  appendChild(element) {
+    this.append(element)
   }
 
-  all() {
-    this.select = () => this.#rootEl.querySelectorAll(this.#selector)
+  removeChild(element) {
+    super.removeChild(element)
+  }
+
+  replaceChildren(...elements) {
+    this.innerHTML = ''
+    this.append(...elements)
+  }
+
+  attachChild(htmlString) {
+    const tpl = document.createElement('template')
+
+    tpl.innerHTML = htmlString
+    this.append(tpl.content.cloneNode(true))
+  }
+
+  removeChildren() {
+    this.innerHTML = ''
+  }
+
+  setStyle(styles) {
+    this.style.cssText = Object
+      .keys(styles)
+      .reduce((acc, prop) => `${acc} ${prop}: ${styles[prop]};`, '')
+
     return this
   }
 
-  at(index) {
-    this.select = () => this.#rootEl.querySelectorAll(this.#selector)[index]
-    return this
+  animate(keyframes, options) {
+    const animation = super.animate(keyframes, options)
+
+    return {
+      get playing() {return animation.finished},
+
+      finish: () => animation.finish(),
+    }
   }
 
-  reduce(cb, defaultAcc) {
-    const elements = this.all().get()
-    let acc = defaultAcc ?? elements[0]
-
-    elements.forEach((el, i) => acc = cb(acc, el, i))
-
-    return acc
-  }
-}
-
-class GlobalElementWrapper extends BaseElementWrapper {
-  constructor({el, elementEventMap, connected}) {
-    super({elementEventMap, connected, selector: 'global object', select: () => el})
+  select(selector) {
+    return this.querySelectorAll(selector)
   }
 }
 
-export default class Component extends HTMLElement {
-  #elementEventMap = new ExtendedMap()
-
-  /** https://developers.google.com/web/fundamentals/architecture/building-components/customelements#attrchanges */
-  static get observedAttributes() {
-    return []
-  }
-
+export class BorshchComponent extends BorshchHtmlElement {
   static get componentName() {
-    return pascalToDashCase(this.name || this.__proto__.name) // __proto__ - is the Safari hack
+    return pascalToDashCase(this.name || this.__proto__.name) //HACK: __proto__ - is the Safari hack
   }
 
-  /** https://developers.google.com/web/fundamentals/architecture/building-components/customelements#reactions */
-  /** https://html.spec.whatwg.org/multipage/custom-elements.html#custom-element-conformance */
+  static define() {
+    customElements.define(this.componentName, this)
+    return this
+  }
+
+  static get observedAttributes() {return []}
+
   constructor() {
-    /**
-     * An instance of the element is created or upgraded.
-     * Useful for initializing state, settings up event listeners,
-     * or creating shadow dom.
-     * */
     super()
-
     this.attachShadow({mode: 'open'})
+    this.#host = new BorshchElement(this.shadowRoot)
   }
+
+  get host() {return this.#host}
+  get attributeChangeListeners() {return {}}
 
   connectedCallback() {
     /**
@@ -255,7 +139,6 @@ export default class Component extends HTMLElement {
      * Called every time the element is removed from the DOM.
      * Useful for running clean up code (removing event listeners, etc.).
      * */
-
     this.onDisconnected()
   }
 
@@ -265,10 +148,7 @@ export default class Component extends HTMLElement {
      * Also called for initial values when an element is created by the parser, or upgraded.
      * Note: only attributes listed in the observedAttributes property will receive this callback.
      * */
-    const changeListener = this.attributeChangeListeners()[attrName]
-
-    if (changeListener)
-      changeListener(newVal, oldVal)
+    this.attributeChangeListeners[attrName]?.(newVal, oldVal)
   }
 
   adoptedCallback() {
@@ -276,92 +156,46 @@ export default class Component extends HTMLElement {
      * The custom element has been moved into a new document
      * (e.g. someone called document.adoptNode(el)).
      * */
-
     this.onAdopted()
   }
+
+  onConnected() {
+    this.#attach(this.render())
+  }
+
+  onDisconnected() {}
+
+  onAdopted() {}
 
   render() {
     return ''
   }
 
-  onConnected() {
-    this.attach(this.render())
+  async getChildren(Type) {
+    if (Type) {
+      await elementDefined(Type)
+      return Array
+        .from(this.children)
+        .filter(node => node instanceof Type)
+    }
+
+    return Array.from(this.children) // TODO: ? .map(child => new BorshchElement(child))
   }
 
-  onDisconnected() {
-    this.#elementEventMap = new ExtendedMap()
-    this.shadowRoot.innerHTML = ''
-  }
-
-  onAdopted() {
-
-  }
-
-  attributeChangeListeners() {
-    return {}
-  }
-
-  attach(html) {
+  #attach(html) {
     const tpl = document.createElement('template')
 
     tpl.innerHTML = html
     this.#applyShadyCss(tpl)
-    this.shadowRoot.appendChild(tpl.content.cloneNode(true))
+    this.#host.appendChild(tpl.content.cloneNode(true))
   }
 
-  host(selector) {  //TODO: bad name. it returns reference to the selected element and not the element itself
-    return new ElementWrapper({
-      rootEl: this.shadowRoot,
-      elementEventMap: this.#elementEventMap,
-      connected: this.isConnected,
-      selector,
-    })
-  }
-
-  element(selector) {  //TODO: bad name. it returns reference to the selected element and not the element itself
-    return new ElementWrapper({
-      rootEl: this,
-      elementEventMap: this.#elementEventMap,
-      connected: this.isConnected,
-      selector,
-    })
-  }
-
-  document() { //TODO trofima: extract to service
-    return new GlobalElementWrapper({
-      el: document,
-      elementEventMap: this.#elementEventMap,
-      connected: this.isConnected,
-    })
-  }
-
-  async getChildren(Type) {
-    if (Type) {
-      await whenDefined(Type)
-
-      return Array.from(this.children).filter(node => node instanceof Type)
-    }
-    
-    return Array.from(this.children)
-  }
-
-  async getFromSlot(selector, Type) {
-    if (this.isConnected) {
-      await whenDefined(Type)
-
-      return this.shadowRoot
-        .querySelector(selector)
-        .assignedNodes()
-        .filter(node => node instanceof Type)
-    }
-
-    return []
-  }
-
-  #applyShadyCss = (tpl) => {
+  #applyShadyCss(tpl) {
     if (window.ShadyCSS) { //if browser doesn't support style scoping in shadow dom
-      ShadyCSS.prepareTemplate(tpl, this.constructor.componentName)
-      ShadyCSS.styleElement(this)
+      window.ShadyCSS.prepareTemplate(tpl, this.constructor.componentName)
+      window.ShadyCSS.styleElement(this)
     }
   }
+
+  #host
 }
