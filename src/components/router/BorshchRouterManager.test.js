@@ -1,87 +1,170 @@
-import {assert} from 'chai'
+import {assert, expect} from 'chai'
 import BorshchRouterManager, {BorshchRouterError} from './BorshchRouterManager'
 import {ElementMock, RouteMock, HistoryMock} from '../../testUtilities'
 
 suite('Borshch route manager', () => {
   suite('initialization', () => {
-    test('render initial route to content', async() => {
-      const route = new RouteMock({path: '/'})
-      const {containerMock} = await new TestFixtures()
-        .withRoutes([route])
-        .build()
-
-      assert(route.rendered, 'initial route was not rendered')
-      assert.equal(containerMock.children[0], route)
-    })
-
-    test('render initial route to content according to history path', async() => {
-      const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/first'})]
-      const [, route1] = routes
-      const {containerMock} = await new TestFixtures()
-        .withRoutes(routes)
-        .withHistoryPath('/first')
-        .build()
-
-      assert(route1.rendered, 'initial route was not rendered')
-      assert.equal(containerMock.children[0], route1)
-    })
-
-    test('render default route to content when no rotes match history path', async() => {
-      const routes = [new RouteMock({path: '/'})]
-      const {containerMock, defaultRoute} = await new TestFixtures()
-        .withRoutes(routes)
-        .withHistoryPath('/first')
-        .build()
-
-      assert(defaultRoute.rendered, 'default route was not rendered')
-      assert.equal(containerMock.children[0], defaultRoute)
-    })
-
     test('subscribe route render to history path change', async() => {
-      const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/first'})]
-      const [, route1] = routes
-      const {historyMock, containerMock} = await new TestFixtures()
+      const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/next'})]
+      const [, nextRoute] = routes
+      const {historyMock, containerMock} = new TestFixtures()
         .withRoutes(routes)
+        .withHistoryPath('/')
         .build()
 
-      historyMock.emit('pathChange', '/first')
+      const renderRoute = historyMock.onOperation.at(0)?.listener
 
-      assert(route1.rendered, 'route was not rendered')
-      assert.equal(containerMock.children[0], route1)
+      await renderRoute({nextPath: '/next', prevPath: '/'})
+
+      assert.equal(historyMock.onOperation.at(0)?.event, 'pathChange')
+      assert(nextRoute.rendered, 'route was not rendered')
+      assert.equal(containerMock.children[0], nextRoute)
     })
+  })
 
-    test('render default route on history path change when no rotes match new history path', async() => {
-      const routes = [new RouteMock({path: '/'})]
-      const {historyMock, containerMock, defaultRoute} = await new TestFixtures()
-        .withRoutes(routes)
+  suite('route render', () => {
+    test('default route render', async() => {
+      const {borshchRouteManager, containerMock, defaultRoute} = new TestFixtures()
+        .withRoutes([])
+        .withHistoryPath('/')
         .build()
 
-      historyMock.emit('pathChange', '/first')
+      await borshchRouteManager.renderRoute('/not-existed')
 
       assert(defaultRoute.rendered, 'route was not rendered')
-      assert.equal(containerMock.children[0], defaultRoute)
+      assert.deepEqual(containerMock.children, [defaultRoute])
+    })
+
+    test('next route render by default path', async() => {
+      const nextRoute = new RouteMock({path: '/'})
+      const {borshchRouteManager, containerMock} = new TestFixtures()
+        .withRoutes([nextRoute])
+        .withHistoryPath('/')
+        .build()
+
+      await borshchRouteManager.renderRoute()
+
+      assert(nextRoute.rendered, 'route was not rendered')
+      assert.deepEqual(containerMock.children, [nextRoute])
+    })
+
+    test('next route render by default path from history', async() => {
+      const nextRoute = new RouteMock({path: '/next'})
+      const {borshchRouteManager, containerMock} = new TestFixtures()
+        .withRoutes([nextRoute])
+        .withHistoryPath('/next')
+        .build()
+
+      await borshchRouteManager.renderRoute()
+
+      assert(nextRoute.rendered, 'route was not rendered')
+      assert.deepEqual(containerMock.children, [nextRoute])
+    })
+
+    test('next route render', async() => {
+      const nextRoute = new RouteMock({path: '/next'})
+      const {borshchRouteManager, containerMock} = new TestFixtures()
+        .withRoutes([nextRoute])
+        .withHistoryPath('/')
+        .build()
+
+      await borshchRouteManager.renderRoute('/next')
+
+      assert(nextRoute.rendered, 'route was not rendered')
+      assert.deepEqual(containerMock.children, [nextRoute])
+    })
+
+    test('another next route render', async() => {
+      const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/next'})]
+      const [, nextRoute] = routes
+      const {borshchRouteManager, containerMock} = new TestFixtures()
+        .withRoutes(routes)
+        .withHistoryPath('/')
+        .build()
+
+      await borshchRouteManager.renderRoute('/next')
+
+      assert(nextRoute.rendered, 'route was not rendered')
+      assert.deepEqual(containerMock.children, [nextRoute])
+    })
+
+    test('do not render already rendered route', async() => {
+      const nextRoute = new RouteMock({path: '/'})
+      const {borshchRouteManager} = new TestFixtures()
+        .withRoutes([nextRoute])
+        .build()
+
+      borshchRouteManager.renderRoute('/')
+      await borshchRouteManager.renderRoute('/')
+
+      assert.equal(nextRoute.renderOperation.callCount, 1)
+    })
+
+    test('render last requested route in a sequence', async() => {
+      const routes = [
+        new RouteMock({path: '/'}), new RouteMock({path: '/omit'}), new RouteMock({path: '/next'}),
+      ]
+      const [, omitRoute] = routes
+      const {borshchRouteManager} = new TestFixtures()
+        .withRoutes(routes)
+        .build()
+
+      borshchRouteManager.renderRoute('/')
+      borshchRouteManager.renderRoute('/omit')
+      await borshchRouteManager.renderRoute('/next')
+
+      assert.equal(omitRoute.renderOperation.callCount, 0)
+    })
+
+    test('clear previous route', async() => {
+      const routes = [
+        new RouteMock({path: '/'}), new RouteMock({path: '/next'}),
+      ]
+      const [prevRoute] = routes
+      const {borshchRouteManager} = new TestFixtures()
+        .withRoutes(routes)
+        .build()
+
+      await borshchRouteManager.renderRoute('/')
+      await borshchRouteManager.renderRoute('/next', '/')
+
+      assert.equal(prevRoute.rendered, false)
     })
   })
 
   suite('navigation', () => {
     test('update path', async() => {
-      const {borshchRouteManager, historyMock} = await new TestFixtures().build()
+      const {borshchRouteManager, historyMock} = new TestFixtures()
+        .withHistoryPath('/')
+        .build()
 
       borshchRouteManager.navigate('/next-path')
 
-      assert.strictEqual(historyMock.path, '/next-path')
+      assert.deepEqual(historyMock.navigateOperation.calls, [{path: '/next-path'}])
     })
 
     test('update another path', async() => {
-      const {borshchRouteManager, historyMock} = await new TestFixtures().build()
+      const {borshchRouteManager, historyMock} = new TestFixtures()
+        .withHistoryPath('/')
+        .build()
 
       borshchRouteManager.navigate('/another-path')
 
-      assert.strictEqual(historyMock.path, '/another-path')
+      assert.deepEqual(historyMock.navigateOperation.calls, [{path: '/another-path'}])
+    })
+
+    test('does not navigate when path is the same as current in history', async() => {
+      const {borshchRouteManager, historyMock} = new TestFixtures()
+        .withHistoryPath('/')
+        .build()
+
+      borshchRouteManager.navigate('/')
+
+      assert.equal(historyMock.navigateOperation.callCount, 0)
     })
 
     test('throw error when path was not provided', async() => {
-      const {borshchRouteManager} = await new TestFixtures().build()
+      const {borshchRouteManager} = new TestFixtures().build()
 
       assert.throws(
         () =>  borshchRouteManager.navigate(),
@@ -89,221 +172,239 @@ suite('Borshch route manager', () => {
         'Navigation path was not provided',
       )
     })
+  })
 
-    test('does not navigate when path is the same as current in history', async() => {
-      const {borshchRouteManager, historyMock} = await new TestFixtures().build()
-      const initialNavigateCallCount = historyMock.navigateCallCount
+  suite('transitions', () => {
+    suite('dissolve', () => {
+      test('entering route style', async() => {
+        const nextRoute = new RouteMock({path: '/'})
+        const {borshchRouteManager} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .withTransition({name: 'dissolve', duration: 100})
+          .build()
 
-      borshchRouteManager.navigate('/')
+        await borshchRouteManager.renderRoute('/')
 
-      assert.equal(historyMock.navigateCallCount, initialNavigateCallCount)
+        assert.deepEqual(nextRoute.style, {opacity: 0, position: 'relative'})
+      })
+
+      test('add entering route to container', async() => {
+        const nextRoute = new RouteMock({path: '/'})
+        const {borshchRouteManager, containerMock} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .withTransition({name: 'dissolve', duration: 100})
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.deepEqual(containerMock.children, [nextRoute])
+      })
+
+      test('render entering route', async() => {
+        const nextRoute = new RouteMock({path: '/'})
+        const {borshchRouteManager} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .withTransition({name: 'dissolve', duration: 100})
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert(nextRoute.rendered, 'next route has not been rendered')
+      })
+
+      test('animate entering route', async() => {
+        const nextRoute = new RouteMock({path: '/'})
+        const {borshchRouteManager} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .withTransition({name: 'dissolve', duration: 100})
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.deepEqual(nextRoute.animationOperation.calls, [{
+          keyframes: [{opacity: 0}, {opacity: 1}],
+          options: {duration: 100, fill: 'forwards'},
+        }])
+      })
+
+      test('animate entering route with another duration', async() => {
+        const nextRoute = new RouteMock({path: '/'})
+        const {borshchRouteManager} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .withTransition({name: 'dissolve', duration: 200})
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.deepEqual(nextRoute.animationOperation.calls, [{
+          keyframes: [{opacity: 0}, {opacity: 1}],
+          options: {duration: 200, fill: 'forwards'},
+        }])
+      })
+
+      test('finnish previously started entering animation before starting the next transition', async() => {
+        const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/next'})]
+        const [prevRoute, nextRoute] = routes
+        const {borshchRouteManager} = new TestFixtures()
+          .withRoutes(routes)
+          .withTransition({name: 'dissolve', duration: 100})
+          .build()
+        prevRoute.animationOperation.defer()
+        nextRoute.animationOperation.defer()
+
+        const prevRendering = borshchRouteManager.renderRoute('/')
+
+        setTimeout(() => {
+          borshchRouteManager.renderRoute('/next')
+          prevRoute.animationOperation.succeed(0)
+        }, 50)
+
+        await prevRendering
+
+        assert.equal(prevRoute.currentAnimation.forcedAction, 'finish')
+      })
+
+      test('leaving route style', async() => {
+        const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/next'})]
+        const [prevRoute] = routes
+        const {borshchRouteManager} = new TestFixtures()
+          .withRoutes(routes)
+          .withTransition({name: 'dissolve', duration: 100})
+          .build()
+        await borshchRouteManager.renderRoute('/')
+
+        await borshchRouteManager.renderRoute('/next', '/')
+
+        assert.deepEqual(prevRoute.style, {opacity: 1, position: 'absolute', inset: '0px'})
+      })
+
+      test('animate leaving route', async() => {
+        const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/next'})]
+        const [prevRoute] = routes
+        const {borshchRouteManager} = new TestFixtures()
+          .withRoutes(routes)
+          .withTransition({name: 'dissolve', duration: 100})
+          .build()
+        await borshchRouteManager.renderRoute('/')
+
+        await borshchRouteManager.renderRoute('/next', '/')
+
+        assert.deepEqual(prevRoute.animationOperation.at(1), {
+          keyframes: [{opacity: 1}, {opacity: 0}],
+          options: {duration: 100, fill: 'forwards'},
+        })
+      })
+
+      test('remove leaving route after animation finishes', async() => {
+        const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/next'})]
+        const [prevRoute, nextRoute] = routes
+        const {borshchRouteManager, containerMock} = new TestFixtures()
+          .withRoutes(routes)
+          .withTransition({name: 'dissolve', duration: 100})
+          .build()
+        await borshchRouteManager.renderRoute('/')
+        prevRoute.animationOperation.defer()
+
+        const routeRendering = borshchRouteManager.renderRoute('/next', '/')
+
+        setTimeout(() => {
+          assert.deepEqual(containerMock.children, [prevRoute, nextRoute])
+          assert.equal(prevRoute.rendered, true)
+          prevRoute.animationOperation.succeed(1)
+        }, 0)
+
+        await routeRendering
+
+        assert.deepEqual(containerMock.children, [nextRoute])
+        assert.equal(prevRoute.rendered, false)
+      })
+
+      test('finnish previously started leaving animation before starting the next transition', async() => {
+        const routes = [
+          new RouteMock({path: '/'}),
+          new RouteMock({path: '/next'}),
+          new RouteMock({path: '/next-next'}),
+        ]
+        const [prevRoute, nextRoute] = routes
+        const {borshchRouteManager} = new TestFixtures()
+          .withRoutes(routes)
+          .withTransition({name: 'dissolve', duration: 100})
+          .build()
+        prevRoute.animationOperation.defer()
+        nextRoute.animationOperation.defer()
+
+        const prevRendering = borshchRouteManager.renderRoute('/next', '/')
+
+        setTimeout(() => {
+          borshchRouteManager.renderRoute('/next-next', '/next')
+          prevRoute.animationOperation.succeed(0)
+          nextRoute.animationOperation.succeed(0)
+        }, 50)
+
+        await prevRendering
+
+        assert.equal(prevRoute.currentAnimation.forcedAction, 'finish')
+      })
+
+      test('do not try to finnish already finished transitions', async() => {
+        const routes = [
+          new RouteMock({path: '/'}),
+          new RouteMock({path: '/next'}),
+        ]
+        const [prevRoute] = routes
+        const {borshchRouteManager} = new TestFixtures()
+          .withRoutes(routes)
+          .withTransition({name: 'dissolve', duration: 100})
+          .build()
+
+        await borshchRouteManager.renderRoute('/next', '/')
+        borshchRouteManager.renderRoute('/next-next', '/next')
+
+        assert.notEqual(prevRoute.currentAnimation.forcedAction, 'finish')
+      })
     })
   })
 
   suite('subscription', () => {
     test('subscribe listener to path change', async() => {
-      const {borshchRouteManager, historyMock} = await new TestFixtures().build()
-      let listenerCalled = false
+      const {borshchRouteManager, historyMock} = new TestFixtures().build()
+      const listener = () => {}
 
-      borshchRouteManager.on('pathChange', () => {listenerCalled = true})
-      historyMock.emit('pathChange', '/path')
+      borshchRouteManager.on('pathChange', listener)
 
-      assert(listenerCalled, 'listener was not called')
+      assert.deepEqual(historyMock.onOperation.at(1), {event: 'pathChange', listener})
     })
 
     test('subscribe listener to hash change', async() => {
-      const {borshchRouteManager, historyMock} = await new TestFixtures().build()
-      let listenerCalled = false
+      const {borshchRouteManager, historyMock} = new TestFixtures().build()
+      const listener = () => {}
 
-      borshchRouteManager.on('hashChange', () => {listenerCalled = true})
-      historyMock.emit('hashChange', '/path')
+      borshchRouteManager.on('hashChange', listener)
 
-      assert(listenerCalled, 'listener was not called')
+      assert.deepEqual(historyMock.onOperation.at(1), {event: 'hashChange', listener})
     })
-  })
 
-  suite('transitions', () => {
-    suite('dissolve', () => {
-      test('entering and leaving route animations', async() => {
-        const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/next'})]
-        const {historyMock} = await new TestFixtures()
-          .withRoutes(routes)
-          .withTransition({name: 'dissolve', duration: 100})
-          .scheduleInitialRouteAnimationReset()
-          .build()
-        const [leavingRoute, enteringRoute] = routes
+    test('unsubscribe listener from pathChange', async() => {
+      const {borshchRouteManager, historyMock} = new TestFixtures().build()
+      const listener = () => {}
 
-        leavingRoute.animation.defer()
-        enteringRoute.animation.defer()
+      borshchRouteManager.off('pathChange', listener)
 
-        historyMock.emit('pathChange', '/next')
+      assert.deepEqual(historyMock.offOperation.calls, [{event: 'pathChange', listener}])
+    })
 
-        await Promise.all([leavingRoute.animation.succeed(0), enteringRoute.animation.succeed(0)])
+    test('unsubscribe listener from pathChange', async() => {
+      const {borshchRouteManager, historyMock} = new TestFixtures().build()
+      const listener = () => {}
 
-        assert.deepEqual(leavingRoute.animation.callArguments, [{
-          transitions: [{opacity: 1}, {opacity: 0}],
-          options: {duration: 100, fill: 'forwards'},
-        }], 'wrong leaving route animations settings')
-        assert.deepEqual(enteringRoute.animation.callArguments, [{
-          transitions: [{opacity: 0}, {opacity: 1}],
-          options: {duration: 100, fill: 'forwards'}
-        }], 'wrong entering route animations settings')
-      })
+      borshchRouteManager.off('hashChange', listener)
 
-      test('entering and leaving route animations with different duration', async() => {
-        const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/next'})]
-        const {historyMock} = await new TestFixtures()
-          .withRoutes(routes)
-          .withTransition({name: 'dissolve', duration: 200})
-          .scheduleInitialRouteAnimationReset()
-          .build()
-        const [leavingRoute, enteringRoute] = routes
-
-        leavingRoute.animation.defer()
-        enteringRoute.animation.defer()
-
-        historyMock.emit('pathChange', '/next')
-
-        await Promise.all([leavingRoute.animation.succeed(0), enteringRoute.animation.succeed(0)])
-
-        assert.deepEqual(leavingRoute.animation.callArguments, [{
-          transitions: [{opacity: 1}, {opacity: 0}],
-          options: {duration: 200, fill: 'forwards'},
-        }], 'wrong leaving route animations settings')
-        assert.deepEqual(enteringRoute.animation.callArguments, [{
-          transitions: [{opacity: 0}, {opacity: 1}],
-          options: {duration: 200, fill: 'forwards'}
-        }], 'wrong entering route animations settings')
-      })
-
-      test('render entering route', async() => {
-        const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/next'})]
-        const {
-          historyMock,
-          containerMock,
-        } = await new TestFixtures()
-          .withRoutes(routes)
-          .withTransition({name: 'dissolve', duration: 100})
-          .scheduleInitialRouteAnimationReset()
-          .build()
-        const [leavingRoute, enteringRoute] = routes
-
-        leavingRoute.animation.defer()
-        enteringRoute.animation.defer()
-
-        historyMock.emit('pathChange', '/next')
-
-        assert(enteringRoute.rendered, 'entering route was not rendered')
-        assert.deepEqual(containerMock.children, [leavingRoute, enteringRoute])
-      })
-
-      test('set initial styles for routes', async() => {
-        const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/next'})]
-        const {historyMock} = await new TestFixtures()
-          .withRoutes(routes)
-          .withTransition({name: 'dissolve', duration: 100})
-          .scheduleInitialRouteAnimationReset()
-          .build()
-        const [leavingRoute, enteringRoute] = routes
-
-        leavingRoute.animation.defer()
-        enteringRoute.animation.defer()
-
-        historyMock.emit('pathChange', '/next')
-
-        assert.deepEqual(
-          leavingRoute.style,
-          {opacity: 1, position: 'absolute', inset: '0px'},
-          'leaving route style is incorrect',
-        )
-        assert.deepEqual(
-          enteringRoute.style,
-          {opacity: 0, position: 'relative'},
-          'entering route style is incorrect',
-        )
-      })
-
-      test('remove leaving route after animation finishes', async () => {
-        const routes = [new RouteMock({path: '/'}), new RouteMock({path: '/next'})]
-        const {historyMock, containerMock} = await new TestFixtures()
-          .withRoutes(routes)
-          .withTransition({name: 'dissolve', duration: 100})
-          .scheduleInitialRouteAnimationReset()
-          .build()
-        const [leavingRoute, enteringRoute] = routes
-
-        leavingRoute.animation.defer()
-        enteringRoute.animation.defer()
-
-        historyMock.emit('pathChange', '/next')
-
-        assert.deepEqual(
-          containerMock.children,
-          [leavingRoute, enteringRoute],
-          'leaving route removed too early'
-        )
-        assert(leavingRoute.rendered, 'leaving route was cleared too early')
-
-        await Promise.all([leavingRoute.animation.succeed(0), enteringRoute.animation.succeed(0)])
-
-        assert.deepEqual(
-          containerMock.children,
-          [enteringRoute],
-          'leaving route was not removed from container',
-        )
-        assert(!leavingRoute.rendered, 'leaving route was not cleared')
-      })
-
-      test('finish ongoing animations', async() => {
-        const routes = [
-          new RouteMock({path: '/first'}),
-          new RouteMock({path: '/second'}),
-          new RouteMock({path: '/third'})
-        ]
-        const [firstRoute, secondRoute, thirdRoute] = routes
-
-        const {historyMock} = await new TestFixtures()
-          .withRoutes(routes)
-          .withHistoryPath('/first')
-          .withTransition({name: 'dissolve', duration: 100})
-          .scheduleInitialRouteAnimationReset()
-          .build()
-
-        firstRoute.animation.defer()
-        secondRoute.animation.defer()
-        thirdRoute.animation.defer()
-
-        historyMock.emit('pathChange', '/second')
-        historyMock.emit('pathChange', '/third')
-
-        assert(
-          firstRoute.currentAnimation.isFinishing,
-          'first route leaving animation is not finished',
-        )
-        assert(
-          secondRoute.currentAnimation.isFinishing,
-          'second route entering animation is not finished',
-        )
-      })
-
-      test('wait for finishing of entering animation in init', async() => {
-        const enteringRoute = new RouteMock({path: '/'})
-        enteringRoute.animation.defer()
-        const initializing = new TestFixtures()
-          .withRoutes([enteringRoute])
-          .withTransition({name: 'dissolve', duration: 100})
-          .build()
-
-        setTimeout(() => enteringRoute.animation.succeed(0), 0)
-        await initializing
-
-        assert.equal(enteringRoute.animation.at(0).state, 'resolved', 'initial animation have not finished')
-      })
+      assert.deepEqual(historyMock.offOperation.calls, [{event: 'hashChange', listener}])
     })
   })
 })
 
-class TestFixtures { //TODO: move mocks to files
+class TestFixtures {
   withRoutes(routes) {
     this.#routes = routes
     return this
@@ -319,32 +420,23 @@ class TestFixtures { //TODO: move mocks to files
     return this
   }
 
-  scheduleInitialRouteAnimationReset() {
-    this.#initialTransitionShouldBeReset = true
-    return this
-  }
-
-  async build() {
+  build() {
     const defaultRoute = new RouteMock()
     const historyMock = new HistoryMock({path: this.#historyPath})
     const containerMock = new ElementMock()
     const borshchRouteManager = new BorshchRouterManager({history: historyMock})
 
-    await borshchRouteManager.init({
+    borshchRouteManager.init({
       defaultRoute,
       transition: this.#transition,
       routes: this.#routes,
       container: containerMock
     })
 
-    if (this.#initialTransitionShouldBeReset)
-      this.#routes.find(({path}) => path === this.#historyPath).animation.reset()
-
     return {borshchRouteManager, historyMock, containerMock, defaultRoute}
   }
 
   #routes = []
-  #historyPath = '/'
+  #historyPath
   #transition
-  #initialTransitionShouldBeReset = false
 }

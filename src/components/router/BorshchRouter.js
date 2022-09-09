@@ -36,6 +36,8 @@ class BorshchRouter extends mixin(
         duration: this.duration,
       },
     })
+
+    borshchRouterManager.renderRoute()
   }
 }
 

@@ -1,18 +1,36 @@
 export default class AnimationMock {
-  constructor(animation, index) {
-    this.#animation = animation
+  constructor(animationOperation, index) {
+    this.#animationOperation = animationOperation
     this.#index = index
+    this.playing.then(() => this.#playState = 'finished').catch(() => this.#playState = 'idle')
   }
 
-  get isFinishing() {return this.#isFinishing}
-  get playing() {return this.#animation.at(this.#index).promise}
+  get playState() {return this.#playState}
+  get forcedAction() {return this.#forcedAction}
+  get playing() {return this.#animationOperation.get(this.#index).promise}
 
-  async finish() {
-    this.#isFinishing = true
-    return this.#animation.succeed(this.#index)
+  play() {
+    this.#playState = 'running'
+    this.#forcedAction = 'play'
   }
 
-  #animation
+  pause() {
+    this.#playState = 'paused'
+    this.#forcedAction = 'pause'
+  }
+
+  cancel() {
+    this.#playState = 'idle'
+    this.#forcedAction = 'cancel'
+  }
+
+  finish() {
+    this.#playState = 'finished'
+    this.#forcedAction = 'finish'
+  }
+
+  #animationOperation
   #index
-  #isFinishing = false
+  #playState = 'idle'
+  #forcedAction = 'none'
 }

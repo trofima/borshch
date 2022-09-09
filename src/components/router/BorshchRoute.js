@@ -1,6 +1,6 @@
 import {BorshchDefaultRoute} from './BorshchDefaultRoute'
 import mixin, {ReflectAttributes} from '../../common/utils/mixin'
-import {removeEndingSlash} from '../../common/utils'
+import {removeEndingSlash} from '../../utilities'
 
 class BorshchRoute extends mixin(
   BorshchDefaultRoute,

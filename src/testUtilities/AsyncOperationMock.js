@@ -6,12 +6,12 @@ export default class AsyncOperationMock {
   }
 
   get calls() {
-    return this.#calls
-  }
-
-  get callArguments() {
     return this.#callArguments
   }
+
+  // get callArguments() {
+  //   return this.#callArguments
+  // }
 
   get callCount() {
     return this.#calls.length
@@ -40,6 +40,10 @@ export default class AsyncOperationMock {
   }
 
   at(index) {
+    return this.#callArguments[index]
+  }
+
+  get(index) {
     return this.#calls[index]
   }
 
@@ -56,7 +60,7 @@ export default class AsyncOperationMock {
   }
 
   async succeed(index, value) {
-    const deferredOperation = this.at(index)
+    const deferredOperation = this.#calls[index]
 
     if (deferredOperation) {
       deferredOperation.resolve(value)
@@ -65,7 +69,7 @@ export default class AsyncOperationMock {
   }
 
   async fail(index, error) {
-    const deferredOperation = this.at(index)
+    const deferredOperation = this.#calls[index]
 
     if (deferredOperation) {
       deferredOperation.reject(error)

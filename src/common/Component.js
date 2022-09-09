@@ -1,5 +1,6 @@
 import {pascalToDashCase, elementDefined} from '../utilities'
 
+//TODO: Come up with way to reuse this interface with HTMLElement (can't be constructed)
 export class BorshchElement {
   constructor(element) {
     this.#element = element
@@ -94,6 +95,7 @@ export class BorshchHtmlElement extends HTMLElement {
 
     return {
       get playing() {return animation.finished},
+      get playState() {return animation.playState},
 
       finish: () => animation.finish(),
     }

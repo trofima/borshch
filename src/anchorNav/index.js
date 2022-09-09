@@ -1,5 +1,5 @@
 import renderTpl from './template.ejs'
-import Component from '../common/Component.js'
+import Component from '../common/DeprecatedComponent'
 import mixin, {HistoryListener, ReflectAttributes} from '../common/utils/mixin'
 
 export default class BorshchAnchorNav extends mixin(

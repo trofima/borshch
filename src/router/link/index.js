@@ -2,11 +2,11 @@ import render from './template.ejs';
 import routerStore from '../store';
 import mixin, {ReflectAttributes} from '../../common/utils/mixin';
 import {connect} from '../../common/store.js';
-import Component from '../../common/Component.js';
+import {BorshchComponent} from '../../common/Component.js';
 import {removeEndingSlash} from '../../common/utils';
 
 export default class BorshchLink extends mixin(
-  Component,
+  BorshchComponent,
   ReflectAttributes('active', {name: 'path', stringify: removeEndingSlash}),
   connect(routerStore),
 ) {

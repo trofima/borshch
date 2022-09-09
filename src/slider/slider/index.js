@@ -1,4 +1,4 @@
-import Component from '../../common/Component.js'
+import Component from '../../common/DeprecatedComponent'
 import { browserHistory } from '../../common/services'
 import mixin, { 
   HistoryListener, ReflectAttributes, SwipeStartListener, WheelStartListener, 

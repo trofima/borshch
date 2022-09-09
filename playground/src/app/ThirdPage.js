@@ -1,7 +1,6 @@
-import {Component} from '../../../src'
+import {BorshchComponent} from '../../../src/common/Component'
 
-
-export default class ThirdPage extends Component {
+class ThirdPage extends BorshchComponent {
   render() {
     return this.#render()
   }
@@ -18,4 +17,4 @@ export default class ThirdPage extends Component {
   }
 }
 
-customElements.define(ThirdPage.componentName, ThirdPage)
+export default ThirdPage.define()

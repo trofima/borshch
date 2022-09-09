@@ -1,2 +1,2 @@
-export {default as Component} from './Component.js'
+export {default as Component} from './DeprecatedComponent.js'
 export {Store, connect} from './store.js'

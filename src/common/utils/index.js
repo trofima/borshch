@@ -23,4 +23,4 @@ export {
 
 export {default as Deferred} from './Deferred'
 export {default as ExtendedMap} from './ExtendedMap'
-export {default as Emitter} from './Emitter'
+export {default as Emitter} from '../../utilities/EventEmitter'

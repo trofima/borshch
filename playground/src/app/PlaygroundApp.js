@@ -1,7 +1,7 @@
-import {Component} from '../../../src'
+import {BorshchComponent} from '../../../src/common/Component'
 import render from './playground.ejs'
 
-export default class PlaygroundApp extends Component {
+class PlaygroundApp extends BorshchComponent {
   render() {
     return render(this.#data)
   }
@@ -13,4 +13,4 @@ export default class PlaygroundApp extends Component {
   #data = {}
 }
 
-customElements.define(PlaygroundApp.componentName, PlaygroundApp)
+export default PlaygroundApp.define()

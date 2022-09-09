@@ -4,7 +4,7 @@ export default class ElementMock {
   get children() {return this.#children}
   get style() {return this.#style}
   get removed() {return this.#removed}
-  get animation() {return this.#animation}
+  get animationOperation() {return this.#animationOperation}
   get currentAnimation() {return this.#currentAnimation}
 
   appendChild(el) {
@@ -31,10 +31,11 @@ export default class ElementMock {
     this.#style = style
   }
 
-  animate(transitions, options) {
-    this.#animation.create({transitions, options})
-    const index = this.#animation.callCount - 1
-    this.#currentAnimation = new AnimationMock(this.#animation, index)
+  animate(keyframes, options) {
+    this.#animationOperation.create({keyframes, options})
+    const index = this.#animationOperation.callCount - 1
+    this.#currentAnimation = new AnimationMock(this.#animationOperation, index)
+    this.#currentAnimation.play()
 
     return this.#currentAnimation
   }
@@ -46,6 +47,6 @@ export default class ElementMock {
   #children = []
   #removed = false
   #style = {}
-  #animation = new AsyncOperationMock('element animation')
+  #animationOperation = new AsyncOperationMock('element animation')
   #currentAnimation
 }

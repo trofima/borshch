@@ -1,4 +1,4 @@
-export default class Emitter {
+export default class EventEmitter {
   on(event, listener) {
     this.#listenersByEvent[event] = [...this.#listenersByEvent[event] ?? [], listener]
 

@@ -1,7 +1,6 @@
-import Emitter from '../common/utils/Emitter'
-import {removeEndingSlash} from '../common/utils'
+import {EventEmitter, removeEndingSlash} from '../utilities'
 
-export default class BrowserHistory extends Emitter {
+export default class BrowserHistory extends EventEmitter {
   constructor() {
     super()
 

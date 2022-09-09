@@ -1,7 +1,7 @@
-import {Component} from '../../../src'
+import {BorshchComponent} from '../../../src/common/Component'
 
 
-export default class HomePage extends Component {
+class HomePage extends BorshchComponent {
   render() {
     return `
     <div style="overflow: hidden;">
@@ -14,4 +14,4 @@ export default class HomePage extends Component {
   }
 }
 
-customElements.define(HomePage.componentName, HomePage)
+export default HomePage.define()

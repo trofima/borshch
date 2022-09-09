@@ -1,6 +1,6 @@
 import render from './template.ejs';
 import Slider from '../slider';
-import Component from '../../common/Component.js';
+import Component from '../../common/DeprecatedComponent';
 import mixin, {ReflectAttributes, HistoryListener} from '../../common/utils/mixin';
 
 export default class BorshchSlide extends mixin(Component, ReflectAttributes('hash'), HistoryListener) {
