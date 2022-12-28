@@ -1,6 +1,6 @@
 import {assert, expect} from 'chai'
 import BorshchRouterManager, {BorshchRouterError} from './BorshchRouterManager'
-import {ElementMock, RouteMock, HistoryMock} from '../../testUtilities'
+import {ElementMock, RouteMock, HistoryMock} from '../../test-utilities'
 
 suite('Borshch route manager', () => {
   suite('initialization', () => {
@@ -424,10 +424,11 @@ class TestFixtures {
     const defaultRoute = new RouteMock()
     const historyMock = new HistoryMock({path: this.#historyPath})
     const containerMock = new ElementMock()
-    const borshchRouteManager = new BorshchRouterManager({history: historyMock})
+    const borshchRouteManager = new BorshchRouterManager()
 
     borshchRouteManager.init({
       defaultRoute,
+      history: historyMock,
       transition: this.#transition,
       routes: this.#routes,
       container: containerMock

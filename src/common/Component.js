@@ -57,14 +57,14 @@ export class BorshchElement {
   #element
 }
 
-export class BorshchHtmlElement extends HTMLElement {
-  appendChild(element) {
-    this.append(element)
-  }
+export class BorshchHtmlElement extends HTMLElement { //TODO: do not change. extend!
+  // appendChild(element) {
+  //   this.append(element)
+  // }
 
-  removeChild(element) {
-    super.removeChild(element)
-  }
+  // removeChild(element) {
+  //   super.removeChild(element)
+  // }
 
   replaceChildren(...elements) {
     this.innerHTML = ''

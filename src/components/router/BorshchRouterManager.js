@@ -1,9 +1,6 @@
 export default class BorshchRouterManager {
-  constructor({history}) {
+  init({history, defaultRoute, container, routes, transition = this.#transition}) {
     this.#history = history
-  }
-
-  init({defaultRoute, container, routes, transition = this.#transition}) {
     this.#defaultRoute = defaultRoute
     this.#container = container
     this.#routes = routes
@@ -24,7 +21,6 @@ export default class BorshchRouterManager {
     this.#nextTransitionPaths = {nextPath: nextRequestedPath, prevPath: prevRequestedPath}
 
     if (this.#routeTransitionAnimations.length)
-      console.log(111, this.#routeTransitionAnimations, this.#routeTransitionAnimations.map(({playState}) => playState))
       this.#routeTransitionAnimations
         .forEach(animation => animation.playState === 'running' && animation.finish())
     await this.#state.currentTransition
