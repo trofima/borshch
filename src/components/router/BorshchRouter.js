@@ -2,10 +2,8 @@ import {BorshchComponent} from '../../common/Component'
 import mixin, {ReflectAttributes} from '../../common/utils/mixin'
 import BorshchRoute from './BorshchRoute'
 import BorshchDefaultRoute from './BorshchDefaultRoute'
-import borshchRouterManager from './borshchRouterManagerInstance'
+import borshchRouterManager from './borshch-router-manager-instance'
 import render from './borshchRouter.ejs'
-import {BrowserHistory} from '../../dependencies'
-
 
 //TODO: meta tags
 //TODO: root
@@ -32,7 +30,6 @@ class BorshchRouter extends mixin(
       defaultRoute,
       routes: routes,
       container: this.host,
-      history: new BrowserHistory(),
       transition: {
         name: this.transition,
         duration: this.duration,

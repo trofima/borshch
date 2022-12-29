@@ -1,11 +1,13 @@
 export default class BorshchRouterManager {
-  init({history, defaultRoute, container, routes, transition = this.#transition}) {
+  constructor({history}) {
     this.#history = history
+  }
+
+  init({defaultRoute, container, routes, transition = this.#transition}) {
     this.#defaultRoute = defaultRoute
     this.#container = container
     this.#routes = routes
     this.#transition = transition
-
     this.#history.on('pathChange', ({nextPath, prevPath}) => this.renderRoute(nextPath, prevPath))
   }
 

@@ -2,7 +2,7 @@ import render from './borshchLink.ejs'
 import mixin, {ReflectAttributes} from '../../common/utils/mixin'
 import {BorshchComponent} from '../../common/Component.js'
 import {removeEndingSlash} from '../../common/utils'
-import borshchRouterManager from './borshchRouterManagerInstance'
+import borshchRouterManager from './borshch-router-manager-instance'
 
 class BorshchLink extends mixin(
   BorshchComponent,
