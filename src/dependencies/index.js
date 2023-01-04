@@ -1,1 +1,1 @@
-export {default as BrowserHistory} from './BrowserHistory'
+export {default as BrowserHistory} from './browser-history'

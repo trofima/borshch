@@ -1,3 +1,5 @@
+// TODO: test
+// TODO: event name validation via some constructor supportedEvents param?
 export default class EventEmitter {
   on(event, listener) {
     this.#listenersByEvent[event] = [...this.#listenersByEvent[event] ?? [], listener]

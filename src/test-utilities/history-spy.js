@@ -1,4 +1,5 @@
-import {AsyncOperationMock, EventEmitterMock} from '.'
+import {EventEmitterSpy, FunctionSpy} from '.'
+// import {AsyncOperationMock, EventEmitterMock} from '.'
 
 // export default class HistoryMock {
 //   constructor({path}) {
@@ -33,19 +34,14 @@ import {AsyncOperationMock, EventEmitterMock} from '.'
 //   #navigateCallCount = 0
 // }
 
-export default class HistoryMock extends EventEmitterMock {
+export default class HistorySpy extends EventEmitterSpy {
   constructor({path}) {
     super()
     this.#path = path
   }
 
   get path() {return this.#path}
-  get navigateOperation() {return this.#navigateOperation}
-
-  navigate(path) {
-    return this.#navigateOperation.create({path})
-  }
+  navigate = new FunctionSpy()
 
   #path = ''
-  #navigateOperation = new AsyncOperationMock('History navigate')
 }

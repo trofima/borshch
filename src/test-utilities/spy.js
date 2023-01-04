@@ -1,14 +1,64 @@
 import {Deferred} from '../utilities'
 
-export class Spy extends BaseSpy {
-  constructor() {
-    const context = new SpyContext()
+class ExtensibleFunction extends Function {
+  constructor(func) {
+    return Object.setPrototypeOf(func, new.target.prototype)
+  }
+}
+
+class FunctionSpyContext {
+  callArguments = []
+  callCount = 0
+  defaultReturn = undefined
+  defaultError = undefined
+
+  addCall(args) {
+    this.callCount++
+    this.callArguments.push(args)
+  }
+}
+
+class AsyncFunctionSpyContext extends FunctionSpyContext {
+  deferred = false
+  deferredCalls = []
+}
+
+class BaseFunctionSpy extends ExtensibleFunction {
+  constructor(spy, context) {
+    super(spy)
+
+    this.#context = context
+  }
+
+  get called() {return Boolean(this.#context.callCount)}
+  get callCount() {return this.#context.callCount}
+
+  returns(value) {
+    this.#context.defaultReturn = value
+    return this
+  }
+
+  fails(error) {
+    this.#context.defaultError = error
+    return this
+  }
+
+  argumentsAt(index) {
+    return this.#context.callArguments[index]
+  }
+
+  #context
+}
+export class FunctionSpy extends BaseFunctionSpy {
+  constructor(fn) {
+    const context = new FunctionSpyContext()
 
     function spy(...args) {
       context.addCall(args)
 
       if (context.defaultError)
         throw context.defaultError
+      fn?.(...args)
       return context.defaultReturn
     }
 
@@ -16,13 +66,12 @@ export class Spy extends BaseSpy {
   }
 }
 
-export class AsyncSpy extends BaseSpy {
-  constructor() {
-    const context = new AsyncSpyContext()
+export class AsyncFunctionSpy extends BaseFunctionSpy {
+  constructor(fn) {
+    const context = new AsyncFunctionSpyContext()
 
     function spy(...args) {
       context.addCall(args)
-
       const deferred = new Deferred()
       if (context.deferred)
         context.deferredCalls.push(deferred)
@@ -30,7 +79,7 @@ export class AsyncSpy extends BaseSpy {
         deferred.reject(context.defaultError)
       else
         deferred.resolve(context.defaultReturn)
-      return deferred.promise
+      return fn ? deferred.promise.then(() => fn(...args)) : deferred.promise
     }
 
     super(spy, context)
@@ -64,54 +113,6 @@ export class AsyncSpy extends BaseSpy {
       deferredSucceed.resolve()
     })
     return deferredSucceed.promise
-  }
-
-  #context
-}
-
-class ExtensibleFunction extends Function {
-  constructor(func) {
-    return Object.setPrototypeOf(func, new.target.prototype)
-  }
-}
-
-class SpyContext {
-  callArguments = []
-  callCount = 0
-  defaultReturn = undefined
-  defaultError = undefined
-
-  addCall(args) {
-    this.callCount++
-    this.callArguments.push(args)
-  }
-}
-
-class AsyncSpyContext extends SpyContext {
-  deferred = false
-  deferredCalls = []
-}
-
-class BaseSpy extends ExtensibleFunction {
-  constructor(spy, context) {
-    super(spy)
-
-    this.#context = context
-  }
-
-  get called() {return Boolean(this.#context.callCount)}
-  get callCount() {return this.#context.callCount}
-
-  returns(value) {
-    this.#context.defaultReturn = value
-  }
-
-  fails(error) {
-    this.#context.defaultError = error
-  }
-
-  argumentsAt(index) {
-    return this.#context.callArguments[index]
   }
 
   #context
