@@ -1,4 +1,3 @@
-
 import {ElementSpy, FunctionSpy} from '.'
 
 export default class RouteSpy extends ElementSpy {
