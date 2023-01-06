@@ -1,4 +1,4 @@
-export default (...attrs) => Base => class ReflectingAttributes extends Base {
+export default (...attrs) => WebComponent => class ReflectingAttributes extends WebComponent {
   constructor(...args) {
     super(...args)
 
