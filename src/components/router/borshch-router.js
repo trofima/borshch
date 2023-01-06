@@ -1,5 +1,5 @@
-import {BorshchComponent} from '../../common/component'
-import mixin, {ReflectAttributes} from '../../common/utils/mixin'
+import {mixin} from '../../utilities'
+import {BorshchComponent, ReflectAttributes} from '../common'
 import BorshchRoute from './borshch-route'
 import BorshchDefaultRoute from './borshch-default-route'
 import borshchRouterManager from './borshch-router-manager-instance'

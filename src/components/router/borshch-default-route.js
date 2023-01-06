@@ -1,4 +1,4 @@
-import {BorshchComponent} from '../../common/component'
+import {BorshchComponent} from '../common'
 
 function valid(children) {
   const tpl = children[0]

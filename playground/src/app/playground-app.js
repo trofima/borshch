@@ -1,5 +1,5 @@
-import {BorshchComponent} from '../../../src/common/component'
-import render from './playground.ejs'
+import {BorshchComponent} from '../../../src/components/common'
+import render from './playground-app.ejs'
 
 class PlaygroundApp extends BorshchComponent {
   render() {
