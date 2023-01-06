@@ -1,4 +1,4 @@
-import {BorshchDefaultRoute} from './BorshchDefaultRoute'
+import {BorshchDefaultRoute} from './borshch-default-route'
 import mixin, {ReflectAttributes} from '../../common/utils/mixin'
 import {removeEndingSlash} from '../../utilities'
 

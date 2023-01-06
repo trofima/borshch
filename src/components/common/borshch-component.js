@@ -1,10 +1,9 @@
-import {pascalToDashCase, elementDefined} from '../utilities'
-import mixin from './utils/mixin'
+import {mixin, convertPascalToDashCase, waitForElementToBeDefined} from '../../utilities'
 import BorshchElementMixin from './borshch-element-mixin'
 
-export class BorshchComponent extends mixin(HTMLElement, BorshchElementMixin) {
+export default class BorshchComponent extends mixin(HTMLElement, BorshchElementMixin) {
   static get componentName() {
-    return pascalToDashCase(this.name || this.__proto__.name) //HACK: __proto__ - is the Safari hack
+    return convertPascalToDashCase(this.name || this.__proto__.name) //HACK: __proto__ - is the Safari hack
   }
 
   static define() {
@@ -72,9 +71,9 @@ export class BorshchComponent extends mixin(HTMLElement, BorshchElementMixin) {
     return ''
   }
 
-  async getChildren(Type) {
+  async getChildren(Type) { //TODO: gets only child borshch components. rename
     if (Type) {
-      await elementDefined(Type)
+      await waitForElementToBeDefined(Type)
       return Array
         .from(this.children)
         .filter(node => node instanceof Type)

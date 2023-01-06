@@ -1,4 +1,4 @@
-import {BorshchComponent} from '../../../src/common/Component'
+import {BorshchComponent} from '../../../src/common/component'
 import render from './playground.ejs'
 
 class PlaygroundApp extends BorshchComponent {

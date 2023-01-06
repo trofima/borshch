@@ -1,9 +1,9 @@
-import {BorshchComponent} from '../../common/Component'
+import {BorshchComponent} from '../../common/component'
 import mixin, {ReflectAttributes} from '../../common/utils/mixin'
-import BorshchRoute from './BorshchRoute'
-import BorshchDefaultRoute from './BorshchDefaultRoute'
+import BorshchRoute from './borshch-route'
+import BorshchDefaultRoute from './borshch-default-route'
 import borshchRouterManager from './borshch-router-manager-instance'
-import render from './borshchRouter.ejs'
+import render from './borshch-router.ejs'
 
 //TODO: meta tags
 //TODO: root
