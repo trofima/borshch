@@ -23,9 +23,9 @@ export default class BorshchRouterManager {
   async renderRoute(nextRequestedPath = this.#history.path, prevRequestedPath) {
     this.#state.lastRequestedTransition = {nextPath: nextRequestedPath, prevPath: prevRequestedPath}
 
-    if (this.#state.ongoingTransitionAnimations.length)
-      this.#state.ongoingTransitionAnimations
-        .forEach(animation => animation.playState === 'running' && animation.finish())
+    if (this.#state.ongoingTransitions.length)
+      this.#state.ongoingTransitions
+        .forEach(transition => transition.state === 'running' && transition.finish())
     await this.#state.currentTransition
     await this.#transit()
   }
@@ -49,7 +49,7 @@ export default class BorshchRouterManager {
         nextRoute, prevRoute,
         container: this.#container,
         duration: this.#transition.duration,
-        onAnimationsStarted: animations => (this.#state.ongoingTransitionAnimations = animations)
+        onTransitionsStarted: transitions => (this.#state.ongoingTransitions = transitions)
       })
       await this.#state.currentTransition
     }
@@ -63,7 +63,7 @@ export default class BorshchRouterManager {
   #state = {
     currentPath: undefined,
     currentTransition: undefined,
-    ongoingTransitionAnimations: [],
+    ongoingTransitions: [],
     lastRequestedTransition: {},
   }
 }

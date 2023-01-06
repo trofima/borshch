@@ -1,8 +1,8 @@
-import {FunctionSpy, AnimationSpy} from '.'
+import {FunctionSpy, TransitionSpy} from '.'
 
 export default class ElementSpy {
-  constructor({animation = new AnimationSpy()} = {}) {
-    this.stubAnimation(animation)
+  constructor({transition = new TransitionSpy()} = {}) {
+    this.stubTransition(transition)
   }
 
   appendChild = new FunctionSpy()
@@ -12,9 +12,9 @@ export default class ElementSpy {
   removeChildren = new FunctionSpy()
   setStyle = new FunctionSpy()
   select = new FunctionSpy()
-  animate = new FunctionSpy()
+  transit = new FunctionSpy()
 
-  stubAnimation(animation) {
-    this.animate.returns(animation)
+  stubTransition(transition) {
+    this.transit.returns(transition)
   }
 }

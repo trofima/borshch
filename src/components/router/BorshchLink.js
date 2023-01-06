@@ -21,7 +21,7 @@ class BorshchLink extends mixin(
     super.onConnected()
     this.addEventListener('click', this.#navigate)
     borshchRouterManager.on('pathChange', this.#setActive)
-    this.host.select('a')[0].addEventListener('click', e => e.preventDefault())
+    this.host.querySelector('a').addEventListener('click', e => e.preventDefault())
   }
 
   onDisconnected() {

@@ -1,8 +1,8 @@
 import {ElementSpy, FunctionSpy} from '.'
 
 export default class RouteSpy extends ElementSpy {
-  constructor({path, animation} = {}) {
-    super({animation})
+  constructor({path, transition} = {}) {
+    super({transition})
     this.#path = path
   }
 

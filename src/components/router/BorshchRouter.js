@@ -26,6 +26,10 @@ class BorshchRouter extends mixin(
       this.getChildren(BorshchDefaultRoute),
     ])
 
+    //TODO: get meta tags, construct BorshchElement from them and pass to borshchRouterManager 
+    //TODO: or setDescription, setKeywords? of some 'document' dependency with those functions?
+    //TODO: pass setTitle function or something like that.
+
     borshchRouterManager.init({
       defaultRoute,
       routes: routes,

@@ -50,7 +50,7 @@ class BaseFunctionSpy extends ExtensibleFunction {
   #context
 }
 export class FunctionSpy extends BaseFunctionSpy {
-  constructor(fn) {
+  constructor(execute) {
     const context = new FunctionSpyContext()
 
     function spy(...args) {
@@ -58,7 +58,7 @@ export class FunctionSpy extends BaseFunctionSpy {
 
       if (context.defaultError)
         throw context.defaultError
-      fn?.(...args)
+      execute?.(...args)
       return context.defaultReturn
     }
 
@@ -67,7 +67,7 @@ export class FunctionSpy extends BaseFunctionSpy {
 }
 
 export class AsyncFunctionSpy extends BaseFunctionSpy {
-  constructor(fn) {
+  constructor(execute) {
     const context = new AsyncFunctionSpyContext()
 
     function spy(...args) {
@@ -79,7 +79,7 @@ export class AsyncFunctionSpy extends BaseFunctionSpy {
         deferred.reject(context.defaultError)
       else
         deferred.resolve(context.defaultReturn)
-      return fn ? deferred.promise.then(() => fn(...args)) : deferred.promise
+      return execute ? deferred.promise.then(() => execute(...args)) : deferred.promise
     }
 
     super(spy, context)

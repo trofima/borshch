@@ -1,112 +1,8 @@
 import {pascalToDashCase, elementDefined} from '../utilities'
+import mixin from './utils/mixin'
+import BorshchElementMixin from './borshch-element-mixin'
 
-//TODO: Come up with way to reuse this interface with HTMLElement (can't be constructed)
-export class BorshchElement {
-  constructor(element) {
-    this.#element = element
-  }
-
-  get element() {return this.#element}
-
-  appendChild(element) {
-    this.#element.append(element)
-  }
-
-  removeChild(element) {
-    this.#element.removeChild(element)
-  }
-
-  replaceChildren(...elements) {
-    this.#element.innerHTML = ''
-    this.#element.append(...elements)
-  }
-
-  attachChild(htmlString) {
-    const tpl = document.createElement('template')
-
-    tpl.innerHTML = htmlString
-    this.#element.append(tpl.content.cloneNode(true))
-  }
-
-  removeChildren() {
-    this.#element.innerHTML = ''
-  }
-
-  setStyle(styles) {
-    this.#element.style.cssText = Object
-      .keys(styles)
-      .reduce((acc, prop) => `${acc} ${prop}: ${styles[prop]};`, '')
-
-    return this
-  }
-
-  animate(keyframes, options) {
-    const animation = this.#element.animate(keyframes, options)
-
-    return {
-      get playing() {return animation.finished},
-
-      finish: () => animation.finish(),
-    }
-  }
-
-  select(selector) {
-    return this.#element.querySelectorAll(selector)
-  }
-
-  #element
-}
-
-export class BorshchHtmlElement extends HTMLElement { //TODO: do not change. extend!
-  // appendChild(element) {
-  //   this.append(element)
-  // }
-
-  // removeChild(element) {
-  //   super.removeChild(element)
-  // }
-
-  replaceChildren(...elements) {
-    this.innerHTML = ''
-    this.append(...elements)
-  }
-
-  attachChild(htmlString) {
-    const tpl = document.createElement('template')
-
-    tpl.innerHTML = htmlString
-    this.append(tpl.content.cloneNode(true))
-  }
-
-  removeChildren() {
-    this.innerHTML = ''
-  }
-
-  setStyle(styles) {
-    this.style.cssText = Object
-      .keys(styles)
-      .reduce((acc, prop) => `${acc} ${prop}: ${styles[prop]};`, '')
-
-    return this
-  }
-
-  animate(keyframes, options) {
-    const animation = super.animate(keyframes, options)
-
-    return {
-      get playing() {return animation.finished},
-      get playState() {return animation.playState},
-
-      finish: () => animation.finish(),
-    }
-  }
-
-  select(selector) {
-    return this.querySelectorAll(selector)
-  }
-}
-
-export class BorshchComponent extends BorshchHtmlElement {
+export class BorshchComponent extends mixin(HTMLElement, BorshchElementMixin) {
   static get componentName() {
     return pascalToDashCase(this.name || this.__proto__.name) //HACK: __proto__ - is the Safari hack
   }
@@ -120,8 +16,11 @@ export class BorshchComponent extends BorshchHtmlElement {
 
   constructor() {
     super()
+    const {
+      constructor: _, ...BorshchElementDescriptor
+    } = Object.getOwnPropertyDescriptors(BorshchElementMixin().prototype)
     this.attachShadow({mode: 'open'})
-    this.#host = new BorshchElement(this.shadowRoot)
+    this.#host = Object.defineProperties(this.shadowRoot, BorshchElementDescriptor)
   }
 
   get host() {return this.#host}

@@ -1,5 +1,5 @@
 export {default as EventEmitterSpy} from './event-emitter-spy'
-export {default as AnimationSpy} from './animation-spy'
+export {default as TransitionSpy} from './transition-spy'
 export {default as HistorySpy} from './history-spy'
 export {default as ElementSpy} from './element-spy'
 export {default as RouteSpy} from './route-spy'

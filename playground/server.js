@@ -32,12 +32,13 @@ app.use(async (request, __, next) => {
       })
     } catch (e) {
       console.error(chalk.red(`\nbuilding client failed because of\n${e}`))
+      return next()
     }
 
     console.info(chalk.green('built client successfully'))
   }
 
-  next()
+  return next()
 })
 
 app.route('*').get((_, response) => response.render('index', {initialData: {shalom: 'shalom'}}))
