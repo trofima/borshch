@@ -77,7 +77,7 @@ suite('Borshch route manager', () => {
         assert(defaultRoute.render.callCount === 1, 'route was not rendered')
       })
 
-      test('next route render by default path', async() => {
+      test('next route render by a default path from history', async() => {
         const nextRoute = new RouteSpy({path: '/'})
         const {borshchRouteManager, containerMock} = new TestFixtures()
           .withRoutes([nextRoute])
@@ -90,7 +90,7 @@ suite('Borshch route manager', () => {
         assert(nextRoute.render.callCount === 1, 'route was not rendered')
       })
 
-      test('next route render by default path from history', async() => {
+      test('next route render by another default path from history', async() => {
         const nextRoute = new RouteSpy({path: '/next'})
         const {borshchRouteManager, containerMock} = new TestFixtures()
           .withRoutes([nextRoute])
@@ -168,9 +168,9 @@ suite('Borshch route manager', () => {
           .build()
 
         await borshchRouteManager.renderRoute('/')
-        await borshchRouteManager.renderRoute('/next', '/')
+        await borshchRouteManager.renderRoute('/next')
 
-        assert(prevRoute.render.callCount === 1, 'route was not cleared')
+        assert(prevRoute.clear.callCount === 1, 'route was not cleared')
       })
     })
 
@@ -226,25 +226,24 @@ suite('Borshch route manager', () => {
         ])
       })
 
-      test('wait for entering transition to be finished', async() => { //TODO: 
-        const runningTransition = new Deferred()
-        const enteringRouteTransition = new TransitionSpy({running: runningTransition})
-        const nextRoute = new RouteSpy({path: '/', transition: enteringRouteTransition})
+      test('wait for entering transition to be finished', async() => {
+        const nextRoute = new RouteSpy({path: '/'})
+        const runningTransition = stubRunningTransitionFor(nextRoute)
         const {borshchRouteManager} = new TestFixtures()
           .withRoutes([nextRoute])
           .withTransition({name: 'dissolve', duration: 100})
           .build()
 
-        const renderingRoute = borshchRouteManager.renderRoute('/')
+        const renderingRoute = borshchRouteManager
+          .renderRoute('/')
+          .then(() => assert(
+            runningTransition.state === 'resolved',
+            'transition has not been finished yet',
+          ))
 
-        assert()
+        setImmediate(() => runningTransition.resolve())
 
         await renderingRoute
-
-        assert.deepEqual(nextRoute.transit.argumentsAt(0), [
-          [{opacity: 0}, {opacity: 1}],
-          {duration: 100},
-        ])
       })
 
       test('animate entering route with another duration', async() => {
@@ -260,29 +259,25 @@ suite('Borshch route manager', () => {
       })
 
       test('leaving route style', async() => {
-        const routes = [new RouteSpy({path: '/'}), new RouteSpy({path: '/next'})]
-        const [prevRoute] = routes
-        const {borshchRouteManager} = new TestFixtures()
-          .withRoutes(routes)
+        const prevRoute = new RouteSpy({path: '/'})
+        const {borshchRouteManager} = await new TestFixtures()
+          .withRoutes([prevRoute, new RouteSpy({path: '/next'})])
           .withTransition({name: 'dissolve', duration: 100})
-          .build()
-        await borshchRouteManager.renderRoute('/')
+          .buildWithRenderedRoute('/')
 
-        await borshchRouteManager.renderRoute('/next', '/')
+        await borshchRouteManager.renderRoute('/next')
 
         assert.deepEqual(prevRoute.setStyle.argumentsAt(1), [{opacity: 1, position: 'absolute', inset: '0px'}])
       })
 
       test('animate leaving route', async() => {
-        const routes = [new RouteSpy({path: '/'}), new RouteSpy({path: '/next'})]
-        const [prevRoute] = routes
-        const {borshchRouteManager} = new TestFixtures()
-          .withRoutes(routes)
+        const prevRoute = new RouteSpy({path: '/'})
+        const {borshchRouteManager} = await new TestFixtures()
+          .withRoutes([prevRoute, new RouteSpy({path: '/next'})])
           .withTransition({name: 'dissolve', duration: 100})
-          .build()
-        await borshchRouteManager.renderRoute('/')
+          .buildWithRenderedRoute('/')
 
-        await borshchRouteManager.renderRoute('/next', '/')
+        await borshchRouteManager.renderRoute('/next')
 
         assert.deepEqual(prevRoute.transit.argumentsAt(1), [
           [{opacity: 1}, {opacity: 0}],
@@ -290,30 +285,53 @@ suite('Borshch route manager', () => {
         ])
       })
 
-      test('remove leaving route after transition finishes', async() => {
-        const runningPrevTransition = new Deferred() //TODO:
-        const routes = [new RouteSpy({path: '/'}), new RouteSpy({path: '/next'})]
-        const [prevRoute] = routes
-        const {borshchRouteManager, containerMock} = new TestFixtures()
-          .withRoutes(routes)
+      test('wait for living transition to be finished', async() => {
+        const leavingRoute = new RouteSpy({path: '/'})
+        const {borshchRouteManager} = await new TestFixtures()
+          .withRoutes([leavingRoute, new RouteSpy({path: '/next'})])
           .withTransition({name: 'dissolve', duration: 100})
-          .build()
-        await borshchRouteManager.renderRoute('/')
+          .buildWithRenderedRoute('/')
+        const runningLeavingTransition = stubRunningTransitionFor(leavingRoute)
 
-        await borshchRouteManager.renderRoute('/next', '/')
+        const renderingRoute = borshchRouteManager
+          .renderRoute('/next')
+          .then(() => assert(
+            runningLeavingTransition.state === 'resolved',
+            'transition has not been finished yet',
+          ))
+        setImmediate(() => runningLeavingTransition.resolve())
 
-        assert.deepEqual(containerMock.removeChild.argumentsAt(0), [prevRoute])
-        assert.equal(prevRoute.clear.callCount, 1)
+        await renderingRoute
+      })
+
+      test('remove leaving route after transition finishes', async() => {
+        const leavingRoute = new RouteSpy({path: '/'})
+        const {borshchRouteManager, containerMock} = await new TestFixtures()
+          .withRoutes([leavingRoute, new RouteSpy({path: '/next'})])
+          .withTransition({name: 'dissolve', duration: 100})
+          .buildWithRenderedRoute('/')
+        const runningLeavingTransition = stubRunningTransitionFor(leavingRoute)
+
+        const renderingRouter = borshchRouteManager.renderRoute('/next')
+        setImmediate(() => {
+          assert.equal(containerMock.removeChild.callCount, 0)
+          assert.equal(leavingRoute.clear.callCount, 0)
+          runningLeavingTransition.resolve()
+        })
+
+        await renderingRouter
+
+        assert.deepEqual(containerMock.removeChild.argumentsAt(0), [leavingRoute])
+        assert.equal(leavingRoute.clear.callCount, 1)
       })
 
       test('finnish ongoing entering transition before starting the next transition', async() => {
         const prevEnteringRouteTransition = new TransitionSpy({state: 'running'})
-        const routes = [
-          new RouteSpy({path: '/', transition: prevEnteringRouteTransition}),
-          new RouteSpy({path: '/next'}),
-        ]
         const {borshchRouteManager} = new TestFixtures()
-          .withRoutes(routes)
+          .withRoutes([
+            new RouteSpy({path: '/', transition: prevEnteringRouteTransition}),
+            new RouteSpy({path: '/next'}),
+          ])
           .withTransition({name: 'dissolve', duration: 100})
           .build()
 
@@ -326,12 +344,11 @@ suite('Borshch route manager', () => {
 
       test('finnish ongoing leaving transition before starting the next transition', async() => {
         const prevLeavingRouteTransition = new TransitionSpy({state: 'running'})
-        const routes = [
-          new RouteSpy({path: '/'}),
-          new RouteSpy({path: '/next', transition: prevLeavingRouteTransition}),
-        ]
         const {borshchRouteManager} = new TestFixtures()
-          .withRoutes(routes)
+          .withRoutes([
+            new RouteSpy({path: '/'}),
+            new RouteSpy({path: '/next', transition: prevLeavingRouteTransition}),
+          ])
           .withTransition({name: 'dissolve', duration: 100})
           .build()
 
@@ -343,20 +360,20 @@ suite('Borshch route manager', () => {
         assert.equal(prevLeavingRouteTransition.finish.callCount, 1)
       })
 
-      test('do not try to finnish already finished transitions', async() => {
+      test('do not try to finish already finished transitions', async() => {
         const prevLeavingRouteTransition = new TransitionSpy({state: 'idle'})
         const prevEnteringRouteTransition = new TransitionSpy({state: 'idle'})
-        const routes = [
-          new RouteSpy({path: '/', transition: prevLeavingRouteTransition}),
-          new RouteSpy({path: '/next', transition: prevEnteringRouteTransition}),
-        ]
-        const {borshchRouteManager} = new TestFixtures()
-          .withRoutes(routes)
+        const {borshchRouteManager} = await new TestFixtures()
+          .withRoutes([
+            new RouteSpy({path: '/', transition: prevLeavingRouteTransition}),
+            new RouteSpy({path: '/next', transition: prevEnteringRouteTransition}),
+            new RouteSpy({path: '/next-next'}),
+          ])
           .withTransition({name: 'dissolve', duration: 100})
-          .build()
+          .buildWithRenderedRoute('/')
 
-        await borshchRouteManager.renderRoute('/next', '/')
-        borshchRouteManager.renderRoute('/next-next', '/next')
+        await borshchRouteManager.renderRoute('/next')
+        await borshchRouteManager.renderRoute('/next-next')
 
         assert.equal(prevLeavingRouteTransition.finish.callCount, 0)
         assert.equal(prevEnteringRouteTransition.finish.callCount, 0)
@@ -443,8 +460,24 @@ class TestFixtures {
     return {borshchRouteManager, historyMock, containerMock, defaultRoute}
   }
 
+  async buildWithRenderedRoute(path) {
+    const {borshchRouteManager, ...rest} = this.build()
+
+    await borshchRouteManager.renderRoute(path)
+
+    return {borshchRouteManager, ...rest}
+  }
+
   #routes = []
   #historyPath
   #transition
   #BorshchRouterManager = BorshchRouterManager
+}
+
+function stubRunningTransitionFor(route) {
+  const runningTransition = new Deferred()
+  const routeTransitionSpy = new TransitionSpy({running: runningTransition.promise})
+  route.stubTransition(routeTransitionSpy)
+
+  return runningTransition
 }

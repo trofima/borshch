@@ -7,7 +7,7 @@ export default class TransitionSpy {
   }
 
   get state() {return this.#state}
-  get playing() {return this.#running}
+  get running() {return this.#running}
 
   play = new FunctionSpy()
   pause = new FunctionSpy()

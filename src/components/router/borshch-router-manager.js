@@ -20,8 +20,8 @@ export default class BorshchRouterManager {
       this.#history.navigate(path)
   }
 
-  async renderRoute(nextRequestedPath = this.#history.path, prevRequestedPath) {
-    this.#state.lastRequestedTransition = {nextPath: nextRequestedPath, prevPath: prevRequestedPath}
+  async renderRoute(nextRequestedPath = this.#history.path) {
+    this.#state.lastRequestedTransitionPath = nextRequestedPath
 
     if (this.#state.ongoingTransitions.length)
       this.#state.ongoingTransitions
@@ -39,9 +39,12 @@ export default class BorshchRouterManager {
   }
 
   async #transit() {
-    const {nextPath, prevPath} = this.#state.lastRequestedTransition
+    const {
+      lastRequestedTransitionPath: nextPath,
+      currentPath: prevPath,
+    } = this.#state
 
-    if (nextPath !== this.#state.currentPath) {
+    if (nextPath !== prevPath) {
       const nextRoute = this.#routes.find(({path}) => path === nextPath) ?? this.#defaultRoute
       const prevRoute = this.#routes.find(({path}) => path === prevPath)
       this.#state.currentPath = nextPath
@@ -64,7 +67,7 @@ export default class BorshchRouterManager {
     currentPath: undefined,
     currentTransition: undefined,
     ongoingTransitions: [],
-    lastRequestedTransition: {},
+    lastRequestedTransitionPath: {},
   }
 }
 

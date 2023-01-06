@@ -21,14 +21,14 @@ class DissolveTransition {
       transitions.push(prevRouteTransition)
       onTransitionsStarted(transitions)
 
-      await prevRouteTransition.playing //TODO: test
+      await prevRouteTransition.running
 
       container.removeChild(prevRoute)
       prevRoute.clear()
     } else
       onTransitionsStarted(transitions)
 
-    await Promise.all(transitions.map(transition => transition.playing)) //TODO: test
+    await Promise.all(transitions.map(transition => transition.running))
   }
 
   #createTransition(duration, entering) {
