@@ -67,10 +67,9 @@ suite('Borshch route manager', () => {
 
   suite('route rendering transitions', () => {
     suite('none', () => {
-      test('default route render', async() => {
+      test('render default route', async() => {
         const {borshchRouteManager, containerMock, defaultRoute} = new TestFixtures()
           .withRoutes([])
-          .withHistoryPath('/')
           .build()
 
         await borshchRouteManager.renderRoute('/not-existed')
@@ -79,7 +78,7 @@ suite('Borshch route manager', () => {
         assert(defaultRoute.render.callCount === 1, 'route was not rendered')
       })
 
-      test('next route render by a default path from history', async() => {
+      test('render next route by a default path from history', async() => {
         const nextRoute = new RouteSpy({path: '/'})
         const {borshchRouteManager, containerMock} = new TestFixtures()
           .withRoutes([nextRoute])
@@ -92,7 +91,7 @@ suite('Borshch route manager', () => {
         assert(nextRoute.render.callCount === 1, 'route was not rendered')
       })
 
-      test('next route render by another default path from history', async() => {
+      test('render next route by another default path from history', async() => {
         const nextRoute = new RouteSpy({path: '/next'})
         const {borshchRouteManager, containerMock} = new TestFixtures()
           .withRoutes([nextRoute])
@@ -105,11 +104,10 @@ suite('Borshch route manager', () => {
         assert(nextRoute.render.callCount === 1, 'route was not rendered')
       })
 
-      test('next route render', async() => {
+      test('render next route', async() => {
         const nextRoute = new RouteSpy({path: '/next'})
         const {borshchRouteManager, containerMock} = new TestFixtures()
           .withRoutes([nextRoute])
-          .withHistoryPath('/')
           .build()
 
         await borshchRouteManager.renderRoute('/next')
@@ -118,12 +116,10 @@ suite('Borshch route manager', () => {
         assert(nextRoute.render.callCount === 1, 'route was not rendered')
       })
 
-      test('another next route render', async() => {
-        const routes = [new RouteSpy({path: '/'}), new RouteSpy({path: '/next'})]
-        const [, nextRoute] = routes
+      test('render another next route', async() => {
+        const nextRoute = new RouteSpy({path: '/next'})
         const {borshchRouteManager, containerMock} = new TestFixtures()
-          .withRoutes(routes)
-          .withHistoryPath('/')
+          .withRoutes([new RouteSpy({path: '/'}), nextRoute])
           .build()
 
         await borshchRouteManager.renderRoute('/next')
@@ -145,12 +141,9 @@ suite('Borshch route manager', () => {
       })
 
       test('render last requested route in a sequence', async() => {
-        const routes = [
-          new RouteSpy({path: '/'}), new RouteSpy({path: '/omit'}), new RouteSpy({path: '/next'}),
-        ]
-        const [, omitRoute] = routes
+        const omitRoute = new RouteSpy({path: '/omit'})
         const {borshchRouteManager} = new TestFixtures()
-          .withRoutes(routes)
+          .withRoutes([new RouteSpy({path: '/'}), omitRoute, new RouteSpy({path: '/next'})])
           .build()
 
         borshchRouteManager.renderRoute('/')
@@ -160,19 +153,38 @@ suite('Borshch route manager', () => {
         assert.equal(omitRoute.render.callCount, 0)
       })
 
+      test('clear default route when it is rendered', async() => {
+        const {borshchRouteManager, defaultRoute} = new TestFixtures()
+          .withRoutes([new RouteSpy({path: '/'})])
+          .build()
+        defaultRoute.stubRendered(true)
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.equal(defaultRoute.clear.callCount, 1)
+      })
+
+      test('do not clear default route when it is not rendered', async() => {
+        const {borshchRouteManager, defaultRoute} = new TestFixtures()
+          .withRoutes([new RouteSpy({path: '/'})], [new RouteSpy({path: '/next'})])
+          .build()
+        defaultRoute.stubRendered(false)
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.equal(defaultRoute.clear.callCount, 0)
+      })
+
       test('clear previous route', async() => {
-        const routes = [
-          new RouteSpy({path: '/'}), new RouteSpy({path: '/next'}),
-        ]
-        const [prevRoute] = routes
+        const prevRoute = new RouteSpy({path: '/'})
         const {borshchRouteManager} = new TestFixtures()
-          .withRoutes(routes)
+          .withRoutes([prevRoute, new RouteSpy({path: '/next'})])
           .build()
 
         await borshchRouteManager.renderRoute('/')
         await borshchRouteManager.renderRoute('/next')
 
-        assert(prevRoute.clear.callCount === 1, 'route was not cleared')
+        assert.equal(prevRoute.clear.callCount, 1)
       })
     })
 

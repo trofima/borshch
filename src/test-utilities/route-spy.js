@@ -9,8 +9,12 @@ export default class RouteSpy extends ElementSpy {
   get path() {return this.#path}
   get rendered() {return this.#rendered}
 
-  render = new FunctionSpy(() => this.#rendered = true)
-  clear = new FunctionSpy(() => this.#rendered = false)
+  render = new FunctionSpy()
+  clear = new FunctionSpy()
+
+  stubRendered(rendered) {
+    this.#rendered = rendered
+  }
 
   #path
   #rendered = false

@@ -47,7 +47,8 @@ export default class BorshchRouterManager {
 
     if (nextPath !== prevPath) {
       const nextRoute = this.#routes.find(({path}) => path === nextPath) ?? this.#defaultRoute
-      const prevRoute = this.#routes.find(({path}) => path === prevPath)
+      const prevRoute = this.#routes.find(({path}) => path === prevPath) ??
+        (this.#defaultRoute.rendered ? this.#defaultRoute : undefined)
       this.#state.currentPath = nextPath
       this.#state.currentTransition = transitionByName[this.#transition.name].run({
         nextRoute, prevRoute,

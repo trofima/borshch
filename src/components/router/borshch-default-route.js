@@ -5,6 +5,8 @@ export class BorshchDefaultRoute extends mixin(
   BorshchComponent,
   ReflectAttributes('name', 'description'),
 ) {
+  get rendered() {return this.#rendered}
+
   onConnected() {
     this.#template = this.#areChildrenValid()
       ? this.children[0]
@@ -15,13 +17,16 @@ export class BorshchDefaultRoute extends mixin(
 
   render() {
     this.host.replaceChildren(this.#template.content.cloneNode(true))
+    this.#rendered = true
   }
 
   clear() {
     this.host.removeChildren()
+    this.#rendered = false
   }
 
   #template = null
+  #rendered = false
 
   #areChildrenValid() {
     const tpl = this.children[0]
