@@ -1,0 +1,24 @@
+{
+  "title": "Borshch",
+  "pages": {
+    "home": {
+      "path": "/",
+      "title": "Home",
+      "description": "Home page description"
+    },
+    "second": {
+      "path": "/second",
+      "title": "Second",
+      "description": "Second page description"
+    },
+    "third": {
+      "path": "/third",
+      "title": "Third",
+      "description": "Third page description"
+    },
+    "default": {
+      "title": "Not Found",
+      "description": "404 Not found page"
+    }    
+  }
+}

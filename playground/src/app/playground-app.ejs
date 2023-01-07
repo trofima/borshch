@@ -1,22 +1,26 @@
 <link rel="stylesheet" href="playground-app.scss">
 
+<% const {title, pages: {default: defaultPage, ...pages}} = locals %>
+
 <borshch-router transition="dissolve" duration="3000">
-    <borshch-route path="/">
-      <template><home-page></home-page></template>
+  <% for (let [name, {path, title, description}] of Object.entries(pages)) { %>
+    <borshch-route path="<%= path %>" name="<%= title %>" description="<%= description %>">
+        <template><<%= name %>-page></<%= name %>-page></template>
     </borshch-route>
-    <borshch-route path="/second">
-      <template><second-page></second-page></template>
-    </borshch-route>
-    <borshch-route path="/third">
-      <template><third-page></third-page></template>
-    </borshch-route>
-    <borshch-default-route>
-        <template>This route is not found on this site. Sorry...</template>
-    </borshch-default-route>
+  <% } %>
+  <borshch-default-route name="<%= defaultPage.title %> " description="<%= defaultPage.description %> ">
+      <template>
+        <div style="overflow: hidden;">
+          <div style="margin-top: 40px">
+            This route is not found on this site. Sorry...
+          </div>
+        </div>
+      </template>
+  </borshch-default-route>
 </borshch-router>
 
 <div style="left: 0; position: absolute; right: 0; top: 0; margin: 10px">
-  <borshch-link path="/">Home</borshch-link>
-  <borshch-link path="/second">Second</borshch-link>
-  <borshch-link path="/third">Third</borshch-link>
+  <% for (let [name, {path, title, description}] of Object.entries(pages)) { %>
+    <borshch-link path="<%= path %>"><%= title %> </borshch-link>
+  <% } %>
 </div>

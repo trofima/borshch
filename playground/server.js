@@ -5,6 +5,7 @@ import {rollup} from 'rollup'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import ejs from 'rollup-plugin-ejs'
 import chalk from 'chalk'
+import data from './data.json' assert { type: "json" }
 
 process.chdir(dirname(fileURLToPath(import.meta.url)))
 const staticFilesRegExp = /.+\..+/
@@ -41,6 +42,6 @@ app.use(async (request, __, next) => {
   return next()
 })
 
-app.route('*').get((_, response) => response.render('index', {initialData: {shalom: 'shalom'}}))
+app.route('*').get((_, response) => response.render('index', {data}))
 
 app.listen(3000, () => console.info(chalk.blue('Playground app started on port 3000')))

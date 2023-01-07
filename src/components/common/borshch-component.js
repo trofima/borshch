@@ -60,12 +60,20 @@ export default class BorshchComponent extends mixin(HTMLElement, BorshchElementM
   }
 
   onConnected() {
-    this.#attach(this.render())
+    this.attach(this.render())
   }
 
   onDisconnected() {}
 
   onAdopted() {}
+
+  attach(html) {
+    const tpl = document.createElement('template')
+
+    tpl.innerHTML = html
+    this.#applyShadyCss(tpl)
+    this.#host.appendChild(tpl.content.cloneNode(true))
+  }
 
   render() {
     return ''
@@ -76,18 +84,10 @@ export default class BorshchComponent extends mixin(HTMLElement, BorshchElementM
       await waitForElementToBeDefined(Type)
       return Array
         .from(this.children)
-        .filter(node => node instanceof Type)
+        .filter(node => node.constructor === Type)
     }
 
     return Array.from(this.children) // TODO: ? .map(child => new BorshchElement(child))
-  }
-
-  #attach(html) {
-    const tpl = document.createElement('template')
-
-    tpl.innerHTML = html
-    this.#applyShadyCss(tpl)
-    this.#host.appendChild(tpl.content.cloneNode(true))
   }
 
   #applyShadyCss(tpl) {

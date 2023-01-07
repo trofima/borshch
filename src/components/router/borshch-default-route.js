@@ -1,22 +1,12 @@
-import {BorshchComponent} from '../common'
+import {mixin} from '../../utilities'
+import {BorshchComponent, ReflectAttributes} from '../common'
 
-function valid(children) {
-  const tpl = children[0]
-
-  if (!tpl) {
-    console.error('Component Route: the route is empty so it won\'t render anything. That\'s seems to be stupid to have no any content.')
-    return false
-  } else if (children.length > 1 || tpl.tagName !== 'TEMPLATE') {
-    console.error('Component Route: should have only one child. And this child has to be a <template> tag. Put all your content inside.')
-    return false
-  }
-
-  return true
-}
-
-export class BorshchDefaultRoute extends BorshchComponent {
+export class BorshchDefaultRoute extends mixin(
+  BorshchComponent,
+  ReflectAttributes('name', 'description'),
+) {
   onConnected() {
-    this.#template = valid(this.children)
+    this.#template = this.#areChildrenValid()
       ? this.children[0]
       : document.createElement('template')
   }
@@ -32,6 +22,20 @@ export class BorshchDefaultRoute extends BorshchComponent {
   }
 
   #template = null
+
+  #areChildrenValid() {
+    const tpl = this.children[0]
+
+    if (!tpl) {
+      console.error('Component BorshchRoute: the route is empty so it won\'t render anything. That\'s seems to be stupid to have no any content.')
+      return false
+    } else if (this.children.length > 1 || tpl.tagName !== 'TEMPLATE') {
+      console.error('Component BorshchRoute: should have only one child. And this child has to be a <template> tag. Put all your content inside.')
+      return false
+    }
+
+    return true
+  }
 }
 
 export default BorshchDefaultRoute.define()

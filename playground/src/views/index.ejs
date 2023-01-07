@@ -7,6 +7,6 @@
     <playground-app></playground-app>
 
     <script src="/src/index.js"></script>
-    <script>init(<%- locals.data %>)</script>
+    <script>init(<%- JSON.stringify(locals.data) %>)</script>
   </body>
 </html>

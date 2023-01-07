@@ -1,7 +1,8 @@
 import transitionByName from './transition-map'
 export default class BorshchRouterManager {
-  constructor({history}) {
+  constructor({history, page}) {
     this.#history = history
+    this.#page = page
   }
 
   init({defaultRoute, container, routes, transition = this.#transition}) {
@@ -58,10 +59,11 @@ export default class BorshchRouterManager {
     }
   }
 
+  #history
+  #page
   #routes
   #defaultRoute
   #container
-  #history
   #transition = {name: 'none'}
   #state = {
     currentPath: undefined,

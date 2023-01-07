@@ -1,6 +1,8 @@
 import {assert} from 'chai'
 import BorshchRouterManager, {BorshchRouterError} from './borshch-router-manager'
-import {ElementSpy, RouteSpy, HistorySpy, TransitionSpy, AsyncFunctionSpy} from '../../test-utilities'
+import {
+  ElementSpy, RouteSpy, HistorySpy, TransitionSpy, AsyncFunctionSpy, PageSpy,
+} from '../../test-utilities'
 import {Deferred} from '../../utilities'
 
 suite('Borshch route manager', () => {
@@ -445,10 +447,14 @@ class TestFixtures {
   }
 
   build() {
-    const defaultRoute = new RouteSpy()
     const historyMock = new HistorySpy({path: this.#historyPath})
+    const pageSpy = new PageSpy()
+    const defaultRoute = new RouteSpy()
     const containerMock = new ElementSpy()
-    const borshchRouteManager = new this.#BorshchRouterManager({history: historyMock})
+    const borshchRouteManager = new this.#BorshchRouterManager({
+      history: historyMock,
+      page: pageSpy,
+    })
 
     borshchRouteManager.init({
       defaultRoute,
@@ -457,7 +463,7 @@ class TestFixtures {
       container: containerMock
     })
 
-    return {borshchRouteManager, historyMock, containerMock, defaultRoute}
+    return {borshchRouteManager, historyMock, pageSpy, containerMock, defaultRoute}
   }
 
   async buildWithRenderedRoute(path) {
