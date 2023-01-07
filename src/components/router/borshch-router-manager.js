@@ -5,7 +5,8 @@ export default class BorshchRouterManager {
     this.#page = page
   }
 
-  init({defaultRoute, container, routes, transition = this.#transition}) {
+  init({title, defaultRoute, container, routes, transition = this.#transition}) {
+    this.#title = title
     this.#defaultRoute = defaultRoute
     this.#container = container
     this.#routes = routes
@@ -39,6 +40,20 @@ export default class BorshchRouterManager {
     this.#history.off(event, listener)
   }
 
+  #history
+  #page
+  #title
+  #routes
+  #defaultRoute
+  #container
+  #transition = {name: 'none'}
+  #state = {
+    currentPath: undefined,
+    currentTransition: undefined,
+    ongoingTransitions: [],
+    lastRequestedTransitionPath: {},
+  }
+
   async #transit() {
     const {
       lastRequestedTransitionPath: nextPath,
@@ -49,6 +64,7 @@ export default class BorshchRouterManager {
       const nextRoute = this.#routes.find(({path}) => path === nextPath) ?? this.#defaultRoute
       const prevRoute = this.#routes.find(({path}) => path === prevPath) ??
         (this.#defaultRoute.rendered ? this.#defaultRoute : undefined)
+      this.#setPageMetadata(nextRoute)
       this.#state.currentPath = nextPath
       this.#state.currentTransition = transitionByName[this.#transition.name].run({
         nextRoute, prevRoute,
@@ -60,17 +76,12 @@ export default class BorshchRouterManager {
     }
   }
 
-  #history
-  #page
-  #routes
-  #defaultRoute
-  #container
-  #transition = {name: 'none'}
-  #state = {
-    currentPath: undefined,
-    currentTransition: undefined,
-    ongoingTransitions: [],
-    lastRequestedTransitionPath: {},
+  #setPageMetadata({name, description}) {
+    const title = this.#title ?? name
+    if (title)
+      this.#page.setTitle(this.#title && name ? `${title} - ${name}` : title)
+    if (description)
+      this.#page.setMeta('description', description)
   }
 }
 

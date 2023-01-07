@@ -2,7 +2,7 @@
 
 <% const {title, pages: {default: defaultPage, ...pages}} = locals %>
 
-<borshch-router transition="dissolve" duration="3000">
+<borshch-router title="Borshch Playground" transition="dissolve" duration="3000">
   <% for (let [name, {path, title, description}] of Object.entries(pages)) { %>
     <borshch-route path="<%= path %>" name="<%= title %>" description="<%= description %>">
         <template><<%= name %>-page></<%= name %>-page></template>

@@ -5,12 +5,10 @@ import BorshchDefaultRoute from './borshch-default-route'
 import borshchRouterManager from './borshch-router-manager-instance'
 import render from './borshch-router.ejs'
 
-//TODO: meta tags
-//TODO: root
 class BorshchRouter extends mixin(
   BorshchComponent,
   ReflectAttributes(
-    'root', 'transition', 'easing', 'direction',
+    'title', 'transition', 'easing', 'direction',
     {name: 'duration', parse: Number, stringify: String},
   ),
 ) {
@@ -28,6 +26,7 @@ class BorshchRouter extends mixin(
 
     borshchRouterManager.init({
       defaultRoute,
+      title: this.title,
       routes: routes,
       container: this.host,
       transition: {

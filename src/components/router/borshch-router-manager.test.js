@@ -8,13 +8,13 @@ import {Deferred} from '../../utilities'
 suite('Borshch route manager', () => {
   suite('initialization', () => {
     test('subscribe route render to history path change', async() => {
-      const {borshchRouteManager, historyMock} = new TestFixtures()
+      const {borshchRouteManager, history} = new TestFixtures()
         .withRoutes([new RouteSpy({path: '/'}), new RouteSpy({path: '/next'})])
         .withHistoryPath('/')
         .withRenderRouteSpy()
         .build()
 
-      const [event, renderRoute] = historyMock.on.argumentsAt(0)
+      const [event, renderRoute] = history.on.argumentsAt(0)
 
       renderRoute({nextPath: '/next', prevPath: '/'})
 
@@ -35,96 +35,96 @@ suite('Borshch route manager', () => {
     })
 
     test('update path', async() => {
-      const {borshchRouteManager, historyMock} = new TestFixtures()
+      const {borshchRouteManager, history} = new TestFixtures()
         .withHistoryPath('/')
         .build()
 
       borshchRouteManager.navigate('/next-path')
 
-      assert.deepEqual(historyMock.navigate.argumentsAt(0), ['/next-path'])
+      assert.deepEqual(history.navigate.argumentsAt(0), ['/next-path'])
     })
 
     test('update another path', async() => {
-      const {borshchRouteManager, historyMock} = new TestFixtures()
+      const {borshchRouteManager, history} = new TestFixtures()
         .withHistoryPath('/')
         .build()
 
       borshchRouteManager.navigate('/another-path')
 
-      assert.deepEqual(historyMock.navigate.argumentsAt(0), ['/another-path'])
+      assert.deepEqual(history.navigate.argumentsAt(0), ['/another-path'])
     })
 
     test('does not navigate when path is the same as current in history', async() => {
-      const {borshchRouteManager, historyMock} = new TestFixtures()
+      const {borshchRouteManager, history} = new TestFixtures()
         .withHistoryPath('/')
         .build()
 
       borshchRouteManager.navigate('/')
 
-      assert.equal(historyMock.navigate.callCount, 0)
+      assert.equal(history.navigate.callCount, 0)
     })
   })
 
   suite('route rendering transitions', () => {
     suite('none', () => {
       test('render default route', async() => {
-        const {borshchRouteManager, containerMock, defaultRoute} = new TestFixtures()
+        const {borshchRouteManager, container, defaultRoute} = new TestFixtures()
           .withRoutes([])
           .build()
 
         await borshchRouteManager.renderRoute('/not-existed')
 
-        assert.deepEqual(containerMock.replaceChildren.argumentsAt(0), [defaultRoute])
+        assert.deepEqual(container.replaceChildren.argumentsAt(0), [defaultRoute])
         assert(defaultRoute.render.callCount === 1, 'route was not rendered')
       })
 
       test('render next route by a default path from history', async() => {
         const nextRoute = new RouteSpy({path: '/'})
-        const {borshchRouteManager, containerMock} = new TestFixtures()
+        const {borshchRouteManager, container} = new TestFixtures()
           .withRoutes([nextRoute])
           .withHistoryPath('/')
           .build()
 
         await borshchRouteManager.renderRoute()
 
-        assert.deepEqual(containerMock.replaceChildren.argumentsAt(0), [nextRoute])
+        assert.deepEqual(container.replaceChildren.argumentsAt(0), [nextRoute])
         assert(nextRoute.render.callCount === 1, 'route was not rendered')
       })
 
       test('render next route by another default path from history', async() => {
         const nextRoute = new RouteSpy({path: '/next'})
-        const {borshchRouteManager, containerMock} = new TestFixtures()
+        const {borshchRouteManager, container} = new TestFixtures()
           .withRoutes([nextRoute])
           .withHistoryPath('/next')
           .build()
 
         await borshchRouteManager.renderRoute()
 
-        assert.deepEqual(containerMock.replaceChildren.argumentsAt(0), [nextRoute])
+        assert.deepEqual(container.replaceChildren.argumentsAt(0), [nextRoute])
         assert(nextRoute.render.callCount === 1, 'route was not rendered')
       })
 
       test('render next route', async() => {
         const nextRoute = new RouteSpy({path: '/next'})
-        const {borshchRouteManager, containerMock} = new TestFixtures()
+        const {borshchRouteManager, container} = new TestFixtures()
           .withRoutes([nextRoute])
           .build()
 
         await borshchRouteManager.renderRoute('/next')
 
-        assert.deepEqual(containerMock.replaceChildren.argumentsAt(0), [nextRoute])
+        assert.deepEqual(container.replaceChildren.argumentsAt(0), [nextRoute])
         assert(nextRoute.render.callCount === 1, 'route was not rendered')
       })
 
       test('render another next route', async() => {
         const nextRoute = new RouteSpy({path: '/next'})
-        const {borshchRouteManager, containerMock} = new TestFixtures()
+        const {borshchRouteManager, container} = new TestFixtures()
           .withRoutes([new RouteSpy({path: '/'}), nextRoute])
           .build()
 
         await borshchRouteManager.renderRoute('/next')
 
-        assert.deepEqual(containerMock.replaceChildren.argumentsAt(0), [nextRoute])
+        assert.deepEqual(container.replaceChildren.argumentsAt(0), [nextRoute])
         assert(nextRoute.render.callCount === 1, 'route was not rendered')
       })
 
@@ -186,6 +186,111 @@ suite('Borshch route manager', () => {
 
         assert.equal(prevRoute.clear.callCount, 1)
       })
+
+      test('set page title', async() => {
+        const nextRoute = new RouteSpy({path: '/'})
+        const {borshchRouteManager, page} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .withTitle('Title')
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.deepEqual(page.setTitle.argumentsAt(0), ['Title'])
+      })
+
+      test('set another page title', async() => {
+        const nextRoute = new RouteSpy({path: '/'})
+        const {borshchRouteManager, page} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .withTitle('Another Title')
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.deepEqual(page.setTitle.argumentsAt(0), ['Another Title'])
+      })
+
+      test('does not set page title when it was not provided', async() => {
+        const nextRoute = new RouteSpy({path: '/'})
+        const {borshchRouteManager, page} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .withTitle(undefined)
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.equal(page.setTitle.callCount, 0)
+      })
+
+      test('add next router name to page title', async() => {
+        const nextRoute = new RouteSpy({path: '/', name: 'Name'})
+        const {borshchRouteManager, page} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .withTitle('Title')
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.deepEqual(page.setTitle.argumentsAt(0), ['Title - Name'])
+      })
+
+      test('add another next router name to page title', async() => {
+        const nextRoute = new RouteSpy({path: '/', name: 'Another Name'})
+        const {borshchRouteManager, page} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .withTitle('Title')
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.deepEqual(page.setTitle.argumentsAt(0), ['Title - Another Name'])
+      })
+
+      test('set only next router name to page title when title was not provided', async() => {
+        const nextRoute = new RouteSpy({path: '/', name: 'Name'})
+        const {borshchRouteManager, page} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .withTitle(undefined)
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.deepEqual(page.setTitle.argumentsAt(0), ['Name'])
+      })
+
+      test('set route description to page description', async() => {
+        const nextRoute = new RouteSpy({path: '/', description: 'description'})
+        const {borshchRouteManager, page} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.deepEqual(page.setMeta.argumentsAt(0), ['description', 'description'])
+      })
+
+      test('set another route description to page description', async() => {
+        const nextRoute = new RouteSpy({path: '/', description: 'another description'})
+        const {borshchRouteManager, page} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.deepEqual(page.setMeta.argumentsAt(0), ['description', 'another description'])
+      })
+
+      test('does not set page description when route description was not provided', async() => {
+        const nextRoute = new RouteSpy({path: '/', description: undefined})
+        const {borshchRouteManager, page} = new TestFixtures()
+          .withRoutes([nextRoute])
+          .build()
+
+        await borshchRouteManager.renderRoute('/')
+
+        assert.equal(page.setMeta.callCount, 0)
+      })
     })
 
     suite('dissolve', () => {
@@ -203,14 +308,14 @@ suite('Borshch route manager', () => {
 
       test('add entering route to container', async() => {
         const nextRoute = new RouteSpy({path: '/'})
-        const {borshchRouteManager, containerMock} = new TestFixtures()
+        const {borshchRouteManager, container} = new TestFixtures()
           .withRoutes([nextRoute])
           .withTransition({name: 'dissolve', duration: 100})
           .build()
 
         await borshchRouteManager.renderRoute('/')
 
-        assert.deepEqual(containerMock.appendChild.argumentsAt(0), [nextRoute])
+        assert.deepEqual(container.appendChild.argumentsAt(0), [nextRoute])
       })
 
       test('render entering route', async() => {
@@ -320,7 +425,7 @@ suite('Borshch route manager', () => {
 
       test('remove leaving route after transition finishes', async() => {
         const leavingRoute = new RouteSpy({path: '/'})
-        const {borshchRouteManager, containerMock} = await new TestFixtures()
+        const {borshchRouteManager, container} = await new TestFixtures()
           .withRoutes([leavingRoute, new RouteSpy({path: '/next'})])
           .withTransition({name: 'dissolve', duration: 100})
           .buildWithRenderedRoute('/')
@@ -328,14 +433,14 @@ suite('Borshch route manager', () => {
 
         const renderingRouter = borshchRouteManager.renderRoute('/next')
         setImmediate(() => {
-          assert.equal(containerMock.removeChild.callCount, 0)
+          assert.equal(container.removeChild.callCount, 0)
           assert.equal(leavingRoute.clear.callCount, 0)
           runningLeavingTransition.resolve()
         })
 
         await renderingRouter
 
-        assert.deepEqual(containerMock.removeChild.argumentsAt(0), [leavingRoute])
+        assert.deepEqual(container.removeChild.argumentsAt(0), [leavingRoute])
         assert.equal(leavingRoute.clear.callCount, 1)
       })
 
@@ -397,44 +502,49 @@ suite('Borshch route manager', () => {
 
   suite('subscription', () => {
     test('subscribe listener to history path change', async() => {
-      const {borshchRouteManager, historyMock} = new TestFixtures().build()
+      const {borshchRouteManager, history} = new TestFixtures().build()
       const listener = () => {}
 
       borshchRouteManager.on('pathChange', listener)
 
-      assert.deepEqual(historyMock.on.argumentsAt(1), ['pathChange', listener])
+      assert.deepEqual(history.on.argumentsAt(1), ['pathChange', listener])
     })
 
     test('subscribe listener to history hash change', async() => {
-      const {borshchRouteManager, historyMock} = new TestFixtures().build()
+      const {borshchRouteManager, history} = new TestFixtures().build()
       const listener = () => {}
 
       borshchRouteManager.on('hashChange', listener)
 
-      assert.deepEqual(historyMock.on.argumentsAt(1), ['hashChange', listener])
+      assert.deepEqual(history.on.argumentsAt(1), ['hashChange', listener])
     })
 
     test('unsubscribe listener from history path change', async() => {
-      const {borshchRouteManager, historyMock} = new TestFixtures().build()
+      const {borshchRouteManager, history} = new TestFixtures().build()
       const listener = () => {}
 
       borshchRouteManager.off('pathChange', listener)
 
-      assert.deepEqual(historyMock.off.argumentsAt(0), ['pathChange', listener])
+      assert.deepEqual(history.off.argumentsAt(0), ['pathChange', listener])
     })
 
     test('unsubscribe listener from history path change', async() => {
-      const {borshchRouteManager, historyMock} = new TestFixtures().build()
+      const {borshchRouteManager, history} = new TestFixtures().build()
       const listener = () => {}
 
       borshchRouteManager.off('hashChange', listener)
 
-      assert.deepEqual(historyMock.off.argumentsAt(0), ['hashChange', listener])
+      assert.deepEqual(history.off.argumentsAt(0), ['hashChange', listener])
     })
   })
 })
 
 class TestFixtures {
+  withTitle(title) {
+    this.#title = title
+    return this
+  }
+
   withRoutes(routes) {
     this.#routes = routes
     return this
@@ -459,23 +569,23 @@ class TestFixtures {
   }
 
   build() {
-    const historyMock = new HistorySpy({path: this.#historyPath})
-    const pageSpy = new PageSpy()
+    const history = new HistorySpy({path: this.#historyPath})
+    const page = new PageSpy()
     const defaultRoute = new RouteSpy()
-    const containerMock = new ElementSpy()
+    const container = new ElementSpy()
     const borshchRouteManager = new this.#BorshchRouterManager({
-      history: historyMock,
-      page: pageSpy,
+      history: history,
+      page: page,
     })
 
     borshchRouteManager.init({
-      defaultRoute,
+      defaultRoute, container,
+      title: this.#title,
       transition: this.#transition,
       routes: this.#routes,
-      container: containerMock
     })
 
-    return {borshchRouteManager, historyMock, pageSpy, containerMock, defaultRoute}
+    return {borshchRouteManager, history, page, container, defaultRoute}
   }
 
   async buildWithRenderedRoute(path) {
@@ -486,6 +596,7 @@ class TestFixtures {
     return {borshchRouteManager, ...rest}
   }
 
+  #title = ''
   #routes = []
   #historyPath
   #transition

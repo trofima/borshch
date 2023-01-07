@@ -1,6 +1,6 @@
 import {FunctionSpy} from '.'
 
-export default class HistorySpy {
+export default class PageSpy {
   setTitle = new FunctionSpy()
   setMeta = new FunctionSpy()
 }
