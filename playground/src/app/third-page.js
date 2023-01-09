@@ -1,4 +1,4 @@
-import {BorshchComponent} from '../../../src/components/common'
+import {BorshchComponent} from '../../../src'
 
 class ThirdPage extends BorshchComponent {
   render() {

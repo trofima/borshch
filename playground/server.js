@@ -5,7 +5,7 @@ import {rollup} from 'rollup'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import ejs from 'rollup-plugin-ejs'
 import chalk from 'chalk'
-import data from './data.json' assert { type: "json" }
+import data from './data.json' assert {type: 'json'}
 
 process.chdir(dirname(fileURLToPath(import.meta.url)))
 const staticFilesRegExp = /.+\..+/
@@ -22,7 +22,7 @@ app.use(async (request, __, next) => {
     try {
       const bundle = await rollup({
         input: 'src/app/index.js',
-        plugins: [nodeResolve(), ejs({loadStyles: true})],
+        plugins: [nodeResolve(), ejs({inlineStyles: true})],
       })
 
       await bundle.write({

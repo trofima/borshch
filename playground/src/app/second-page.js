@@ -1,4 +1,4 @@
-import {BorshchComponent} from '../../../src/components/common'
+import {BorshchComponent} from '../../../src'
 
 class SecondPage extends BorshchComponent {
   render() {

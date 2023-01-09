@@ -4,6 +4,14 @@
   "description": "Tools for vanilla webcomponents",
   "type": "module",
   "main": "index.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "exports": {
+    "import": "./dist/borshch.js",
+    "require": "./dist/borshch.cjs"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/trofima/borshch.git"
@@ -20,11 +28,14 @@
   "homepage": "https://github.com/trofima/borshch#readme",
   "scripts": {
     "start": "node playground/server.js",
-    "lint": "eslint {src,playground}/**/*.js",
-    "test": ":"
+    "test": "node --experimental-specifier-resolution=node ./node_modules/.bin/mocha -u tdd --timeout 10000 --colors ./**/*.test.js",
+    "prebuild": "rm -rf dist/*",
+    "build": "rollup -c",
+    "lint": "eslint {src,playground}/**/*.js"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-terser": "^0.3.0",
     "chai": "^4.3.6",
     "chai-spies": "^1.0.0",
     "chalk": "^5.2.0",
@@ -32,8 +43,8 @@
     "eslint": "^8.17.0",
     "express": "^4.18.1",
     "mocha": "^10.0.0",
-    "rollup": "^2.75.6",
-    "rollup-plugin-ejs": "^2.3.0"
+    "rollup": "^3.9.1",
+    "rollup-plugin-ejs": "^4.0.0"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",

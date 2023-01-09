@@ -1,5 +1,4 @@
-import {BorshchComponent} from '../../../src/components/common'
-
+import {BorshchComponent} from '../../../src'
 
 class HomePage extends BorshchComponent {
   render() {
