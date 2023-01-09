@@ -1,0 +1,13 @@
+@import "../common/styles/reset-component.scss";
+
+:host {
+  cursor: pointer;
+  display: inline-block;
+
+  a {
+    color: inherit;
+    display: block;
+    height: 100%;
+    width: 100%;
+  }
+}
