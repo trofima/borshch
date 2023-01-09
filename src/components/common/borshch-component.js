@@ -1,5 +1,5 @@
-import {mixin, convertPascalToDashCase, waitForElementToBeDefined} from '../../utilities'
-import BorshchElementMixin from './borshch-element-mixin'
+import {convertPascalToDashCase, mixin} from '../../utilities'
+import BorshchElement, {BorshchElementMixin} from './borshch-element'
 
 export default class BorshchComponent extends mixin(HTMLElement, BorshchElementMixin) {
   static get componentName() {
@@ -15,11 +15,8 @@ export default class BorshchComponent extends mixin(HTMLElement, BorshchElementM
 
   constructor() {
     super()
-    const {
-      constructor: _, ...BorshchElementDescriptor
-    } = Object.getOwnPropertyDescriptors(BorshchElementMixin().prototype)
     this.attachShadow({mode: 'open'})
-    this.#host = Object.defineProperties(this.shadowRoot, BorshchElementDescriptor)
+    this.#host = new BorshchElement(this.shadowRoot)
   }
 
   get host() {return this.#host}
@@ -69,7 +66,6 @@ export default class BorshchComponent extends mixin(HTMLElement, BorshchElementM
 
   attach(html) {
     const tpl = document.createElement('template')
-
     tpl.innerHTML = html
     this.#applyShadyCss(tpl)
     this.#host.appendChild(tpl.content.cloneNode(true))
@@ -77,17 +73,6 @@ export default class BorshchComponent extends mixin(HTMLElement, BorshchElementM
 
   render() {
     return ''
-  }
-
-  async getChildren(Type) { //TODO: gets only child borshch components. rename
-    if (Type) {
-      await waitForElementToBeDefined(Type)
-      return Array
-        .from(this.children)
-        .filter(node => node.constructor === Type)
-    }
-
-    return Array.from(this.children) // TODO: ? .map(child => new BorshchElement(child))
   }
 
   #applyShadyCss(tpl) {

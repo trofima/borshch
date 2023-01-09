@@ -20,8 +20,8 @@ class BorshchRouter extends mixin(
     super.onConnected()
 
     const [routes, [defaultRoute]] = await Promise.all([
-      this.getChildren(BorshchRoute),
-      this.getChildren(BorshchDefaultRoute),
+      this.getChildComponents(BorshchRoute),
+      this.getChildComponents(BorshchDefaultRoute),
     ])
 
     borshchRouterManager.init({
