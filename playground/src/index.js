@@ -2,7 +2,7 @@ function init(data) {
   window.customElements.whenDefined('playground-app')
     .then(() => document.querySelector('playground-app').setData(data))
 
-  appendScript('dist/bundle.js')
+  appendScript('dist/playground-app.js')
 }
 
 function appendScript(src) {
