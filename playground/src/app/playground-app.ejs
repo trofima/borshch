@@ -2,7 +2,7 @@
 
 <% const {title, pages: {default: defaultPage, ...pages}} = locals %>
 
-<borshch-router title="Borshch Playground" transition="dissolve" duration="3000">
+<borshch-router title="Borshch Playground" transition="dissolve" duration="300">
   <% for (let [name, {path, title, description}] of Object.entries(pages)) { %>
     <borshch-route path="<%= path %>" name="<%= title %>" description="<%= description %>">
         <template><<%= name %>-page></<%= name %>-page></template>
@@ -21,6 +21,6 @@
 
 <div style="left: 0; position: absolute; right: 0; top: 0; margin: 10px">
   <% for (let [name, {path, title, description}] of Object.entries(pages)) { %>
-    <borshch-link path="<%= path %>"><%= title %> </borshch-link>
+    <borshch-router-link path="<%= path %>"><%= title %> </borshch-router-link>
   <% } %>
 </div>
