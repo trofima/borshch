@@ -1,68 +1,17 @@
-import {convertPascalToDashCase, mixin} from '../../utilities'
-import BorshchElement, {BorshchElementMixin} from './borshch-element'
+import BorshchHtmlElement, {BorshchElement} from './borshch-html-element'
 
-export default class BorshchComponent extends mixin(HTMLElement, BorshchElementMixin) {
-  static get componentName() {
-    return convertPascalToDashCase(this.name || this.__proto__.name) //HACK: __proto__ - is the Safari hack
-  }
-
-  static define() {
-    customElements.define(this.componentName, this)
-    return this
-  }
-
-  static get observedAttributes() {return []}
-
+export default class BorshchComponent extends BorshchElement(HTMLElement) {
   constructor() {
     super()
     this.attachShadow({mode: 'open'})
-    this.#host = new BorshchElement(this.shadowRoot)
+    this.#host = BorshchHtmlElement.of(this.shadowRoot)
   }
 
   get host() {return this.#host}
-  get attributeChangeListeners() {return {}}
-
-  connectedCallback() {
-    /**
-     * Called every time the element is inserted into the DOM.
-     * Useful for running setup code, such as fetching resources or rendering.
-     * Generally, you should try to delay work until this time.
-     * */
-    this.onConnected()
-  }
-
-  disconnectedCallback() {
-    /**
-     * Called every time the element is removed from the DOM.
-     * Useful for running clean up code (removing event listeners, etc.).
-     * */
-    this.onDisconnected()
-  }
-
-  attributeChangedCallback(attrName, oldVal, newVal) {
-    /**
-     * An attribute was added, removed, updated, or replaced.
-     * Also called for initial values when an element is created by the parser, or upgraded.
-     * Note: only attributes listed in the observedAttributes property will receive this callback.
-     * */
-    this.attributeChangeListeners[attrName]?.(newVal, oldVal)
-  }
-
-  adoptedCallback() {
-    /**
-     * The custom element has been moved into a new document
-     * (e.g. someone called document.adoptNode(el)).
-     * */
-    this.onAdopted()
-  }
 
   onConnected() {
     this.attach(this.render())
   }
-
-  onDisconnected() {}
-
-  onAdopted() {}
 
   attach(html) {
     const tpl = document.createElement('template')

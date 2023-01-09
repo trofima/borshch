@@ -11,10 +11,7 @@ Also bundle is not transpiled, so it will work only in modern browsers.
 
 ## Components
 
-### `BorshchElement` (extends `HTMLElement`)
-Basic element providing additional api around [HTMLElement](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement)
-TODO: api, examples
-### `BorshchComponent` (extends `HTMLElement`, `BorshchElement`)
+### `BorshchComponent` (extends `HTMLElement`)
 Basic component providing additional api around [CustomElement](https://developer.mozilla.org/en-US/docs/Web/Web_Components)
 TODO: api, examples
 ### `BorshchRouter` (extends `BorshchComponent`)
