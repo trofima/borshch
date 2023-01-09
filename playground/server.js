@@ -5,7 +5,6 @@ import {rollup} from 'rollup'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import ejs from 'rollup-plugin-ejs'
 import chalk from 'chalk'
-import rollupConfig from '../rollup.config.js'
 import data from './data.json' assert {type: 'json'}
 
 process.chdir(dirname(fileURLToPath(import.meta.url)))
