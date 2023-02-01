@@ -44,7 +44,7 @@ class BaseFunctionSpy extends ExtensibleFunction {
   }
 
   argumentsAt(index) {
-    return this.#context.callArguments[index]
+    return this.#context.callArguments.at(index)
   }
 
   #context
@@ -94,7 +94,7 @@ export class AsyncFunctionSpy extends BaseFunctionSpy {
   async fail(index, error) {
     const deferredFail = new Deferred()
     setImmediate(() => {
-      const deferredCall = this.#context.deferredCalls[index]
+      const deferredCall = this.#context.deferredCalls.at(index)
       if (!deferredCall)
         throw new Error(`Function was not called at ${index}`)
       deferredCall.reject(error)
@@ -103,13 +103,13 @@ export class AsyncFunctionSpy extends BaseFunctionSpy {
     return deferredFail.promise
   }
 
-  async succeed(index, ...args) {
+  async succeed(index, value) {
     const deferredSucceed = new Deferred()
     setImmediate(() => {
-      const deferredCall = this.#context.deferredCalls[index]
+      const deferredCall = this.#context.deferredCalls.at(index)
       if (!deferredCall)
         throw new Error(`Function was not called at ${index}`)
-      deferredCall.resolve(...args)
+      deferredCall.resolve(value)
       deferredSucceed.resolve()
     })
     return deferredSucceed.promise

@@ -14,9 +14,9 @@ suite('Borshch route manager', () => {
         .withRenderRouteSpy()
         .build()
 
-      const [event, renderRoute] = history.on.argumentsAt(0)
+      const [event, historyChangeSubscriber] = history.on.argumentsAt(0)
 
-      renderRoute({nextPath: '/next', prevPath: '/'})
+      historyChangeSubscriber({nextPath: '/next', prevPath: '/'})
 
       assert.equal(event, 'pathChange')
       assert.deepEqual(borshchRouteManager.renderRoute.argumentsAt(0), ['/next', '/'])
