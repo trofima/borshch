@@ -1,7 +1,7 @@
 {
   "name": "@borshch/utilities",
   "description": "Borshch utilities",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": "trofima",
   "license": "ISC",
   "main": "index.js",
