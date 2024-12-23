@@ -1,3 +1,5 @@
+import {clone} from 'rambda'
+
 // TODO: test
 export class Atom {
   static of(initialValue, {keepHistory = false} = {}) {

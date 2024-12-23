@@ -1,5 +1,10 @@
 {
   "name": "borshch",
-  "workspaces": ["packages/*"],
-  "type": "module"
+  "workspaces": [
+    "packages/*"
+  ],
+  "type": "module",
+  "dependencies": {
+    "rambda": "^9.4.1"
+  }
 }
