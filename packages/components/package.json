@@ -16,10 +16,7 @@
     "type": "git",
     "url": "git+https://github.com/trofima/borshch.git"
   },
-  "keywords": [
-    "borshch",
-    "webcomponents"
-  ],
+  "keywords": ["borshch", "borscht", "webcomponents"],
   "author": "trofima",
   "license": "MIT",
   "bugs": {
