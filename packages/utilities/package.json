@@ -6,7 +6,12 @@
   "license": "ISC",
   "main": "index.js",
   "type": "module",
-  "keywords": ["spy", "function spy", "deferred", "event emitter"],
+  "keywords": [
+    "spy",
+    "function spy",
+    "deferred",
+    "event emitter"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/trofima/borshch.git"
@@ -25,5 +30,8 @@
     "eslint": "^9.17.0",
     "globals": "^15.14.0",
     "mocha": "^11.0.1"
+  },
+  "dependencies": {
+    "object-hash": "^3.0.0"
   }
 }
