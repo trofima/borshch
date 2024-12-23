@@ -1,4 +1,5 @@
 {
   "name": "borshch",
-  "workspaces": ["packages/*"]
+  "workspaces": ["packages/*"],
+  "type": "module"
 }
