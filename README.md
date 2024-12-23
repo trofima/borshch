@@ -5,5 +5,5 @@ _Borshch (Борщ) - is a Ukrainian soup consisting from a lot of ingredients. 
 </p>
 
 Contents:
-* [components](./packages/componentns) - tools for vanilla [webcomponents](https://developer.mozilla.org/en-US/docs/Web/Web_Components)
-* [utilities](./packages/utilities) - several utilities
+* [components](https://github.com/trofima/borshch/tree/main/packages/components) - tools for vanilla [webcomponents](https://developer.mozilla.org/en-US/docs/Web/Web_Components)
+* [utilities](https://github.com/trofima/borshch/tree/main/packages/utilities) - several utilities
