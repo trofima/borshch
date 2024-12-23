@@ -1,11 +1,14 @@
 {
   "name": "@borshch/utilities",
   "description": "Borshch utilities",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "author": "trofima",
   "license": "ISC",
   "main": "index.js",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
     "spy",
     "function spy",
@@ -17,10 +20,6 @@
     "url": "git+https://github.com/trofima/borshch.git"
   },
   "homepage": "https://github.com/trofima/borshch/packages/utilities#readme",
-  "files": [
-    "index.js",
-    "README.md"
-  ],
   "scripts": {
     "test": "mocha -u tdd --timeout 10000 --colors ./**/*.test.js"
   },
