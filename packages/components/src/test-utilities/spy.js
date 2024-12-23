@@ -9,8 +9,9 @@ class ExtensibleFunction extends Function {
 class FunctionSpyContext {
   callArguments = []
   callCount = 0
-  defaultReturn = undefined
-  defaultError = undefined
+  returnValue = undefined
+  error = undefined
+  forArgumentsToReturnValue = new Map()
 
   addCall(args) {
     this.callCount++
@@ -30,21 +31,47 @@ class BaseFunctionSpy extends ExtensibleFunction {
     this.#context = context
   }
 
+  get calls() {return this.#context.callArguments}
   get called() {return Boolean(this.#context.callCount)}
   get callCount() {return this.#context.callCount}
 
+  get theOnlyCall() {
+    const {length} = this.#context.callArguments
+    if (length > 1)
+      throw new Error(`Spied function should have been called once. Called ${length} times instead`)
+    return this.#context.callArguments.at(0)
+  }
+
+  get lastCall() {
+    const {length} = this.#context.callArguments
+    if (length === 0)
+      throw new Error('Spied function has never been called')
+    return this.#context.callArguments.at(-1)
+  }
+
   returns(value) {
-    this.#context.defaultReturn = value
+    this.#context.returnValue = value
     return this
   }
 
   fails(error) {
-    this.#context.defaultError = error
+    this.#context.error = error
     return this
   }
 
   argumentsAt(index) {
-    return this.#context.callArguments.at(index)
+    const args = this.#context.callArguments.at(index)
+    if (!args)
+      throw new Error(`Spied function has not been called${index === 0 ? '' : ` ${index + 1} times`}`)
+    return args
+  }
+
+  for(...args) {
+    const argumentsHash = hash(args)
+    this.#context.forArgumentsToReturnValue.set(argumentsHash, undefined)
+    return {
+      returns: (value) => this.#context.forArgumentsToReturnValue.set(argumentsHash, value),
+    }
   }
 
   #context
@@ -56,10 +83,10 @@ export class FunctionSpy extends BaseFunctionSpy {
     function spy(...args) {
       context.addCall(args)
 
-      if (context.defaultError)
-        throw context.defaultError
+      if (context.error) throw context.error
+
       execute?.(...args)
-      return context.defaultReturn
+      return context.forArgumentsToReturnValue.get(hash(args)) ?? context.returnValue
     }
 
     super(spy, context)
@@ -73,13 +100,14 @@ export class AsyncFunctionSpy extends BaseFunctionSpy {
     function spy(...args) {
       context.addCall(args)
       const deferred = new Deferred()
-      if (context.deferred)
-        context.deferredCalls.push(deferred)
-      else if (context.defaultError)
-        deferred.reject(context.defaultError)
-      else
-        deferred.resolve(context.defaultReturn)
-      return execute ? deferred.promise.then(() => execute(...args)) : deferred.promise
+
+      if (context.deferred) context.deferredCalls.push(deferred)
+      else if (context.error) deferred.reject(context.error)
+      else deferred.resolve(context.returnValue)
+
+      return execute
+        ? deferred.promise.then(() => execute(...args))
+        : deferred.promise
     }
 
     super(spy, context)
@@ -95,8 +123,7 @@ export class AsyncFunctionSpy extends BaseFunctionSpy {
     const deferredFail = new Deferred()
     setImmediate(() => {
       const deferredCall = this.#context.deferredCalls.at(index)
-      if (!deferredCall)
-        throw new Error(`Function was not called at ${index}`)
+      if (!deferredCall) throw new Error(`Function was not called at ${index}`)
       deferredCall.reject(error)
       deferredFail.resolve()
     })
@@ -107,8 +134,7 @@ export class AsyncFunctionSpy extends BaseFunctionSpy {
     const deferredSucceed = new Deferred()
     setImmediate(() => {
       const deferredCall = this.#context.deferredCalls.at(index)
-      if (!deferredCall)
-        throw new Error(`Function was not called at ${index}`)
+      if (!deferredCall) throw new Error(`Function was not called at ${index}`)
       deferredCall.resolve(value)
       deferredSucceed.resolve()
     })

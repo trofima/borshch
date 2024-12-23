@@ -1,3 +1,3 @@
-import Service from '../services/Service.js'
+import Service from './Service.js'
 
 export default new Service({target: window, name: 'wheel'});

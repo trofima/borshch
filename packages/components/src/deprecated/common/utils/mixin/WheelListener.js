@@ -1,4 +1,4 @@
-import {wheel} from '../../services';
+import {wheel} from '../../services/index.js';
 import {lockable} from '../index.js';
 
 const WheelListener = Base => class WheelListener extends Base {

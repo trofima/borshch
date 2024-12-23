@@ -1,5 +1,5 @@
 import Service from './Service.js';
-import {removeEndingSlash} from '../utils';
+import {removeEndingSlash} from '../utils/index.js';
 
 const POPSTATE = 'popstate';
 const HASHCHANGE = 'hashchange';

@@ -1,0 +1,29 @@
+{
+  "name": "@borshch/utilities",
+  "description": "Borshch utilities",
+  "version": "1.0.0",
+  "author": "trofima",
+  "license": "ISC",
+  "main": "index.js",
+  "type": "module",
+  "keywords": ["spy", "function spy", "deferred", "event emitter"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trofima/borshch.git"
+  },
+  "homepage": "https://github.com/trofima/borshch/packages/utilities#readme",
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "mocha -u tdd --timeout 10000 --colors ./**/*.test.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "chai": "^5.1.2",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
+    "mocha": "^11.0.1"
+  }
+}
