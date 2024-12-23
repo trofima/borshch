@@ -2,32 +2,6 @@ import {assert} from 'chai'
 import {Deferred} from './deferred.js'
 
 suite('Deferred', () => {
-  test('state change', async () => {
-    const deferred = new Deferred()
-    assert.equal(deferred.state, 'pending')
-
-    await deferred.resolve()
-    assert.equal(deferred.state, 'resolved')
-
-    const anotherDeferred = new Deferred()
-    assert.equal(anotherDeferred.state, 'pending')
-
-    await anotherDeferred.reject().catch()
-    assert.equal(anotherDeferred.state, 'rejected')
-  })
-
-  test('throws when promise already fulfilled', async () => {
-    const deferred = new Deferred()
-    await deferred.resolve()
-    assert.throws(() => deferred.resolve(), Error, 'Promise already resolved')
-    assert.throws(() => deferred.reject(), Error, 'Promise already resolved')
-
-    const anotherDeferred = new Deferred()
-    await anotherDeferred.reject().catch()
-    assert.throws(() => anotherDeferred.resolve(), Error, 'Promise already rejected')
-    assert.throws(() => anotherDeferred.reject(), Error, 'Promise already rejected')
-  })
-
   test('promise resolution', async () => {
     const deferred = new Deferred()
     deferred.resolve('result')

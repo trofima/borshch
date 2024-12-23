@@ -9,23 +9,11 @@ Several utilities used in borshch components
 npm i @borshch/utilities
 ```
 
-## Spy
-Spy wrapper for the function allowing to analyze function calls and stub return values.
-<br>
-It is extendable, meaning you can customize your spies and reuse them across tests.
+### Deferred
+Creates deferred promise that you can manually control resolution and rejection<br>
+Usage [examples](https://github.com/trofima/borshch/blob/e2810d29b010b822a8e7dea01bf59890272c8c6e/packages/utilities/deferred.test.js) 
 
-```javascript
-import {FunctionSpy} from 'function-spy'
-
-test('spy function', () => {
-  const myFunction = new FunctionSpy()
-
-  myFunction('argument')
-
-  const [event, eventData] = emit.lastCall
-  assert.equal(myFunction, 'change')
-  assert.deepEqual(eventData.value, ['value'])
-  assert.equal(eventData.index, 0)
-})
-
-```
+### Spy
+Spy wrapper for the function allowing to analyze function calls and stub return values.<br>
+It is extendable, meaning you can customize your spies and reuse them across tests.<br>
+Usage [examples](https://github.com/trofima/borshch/blob/main/packages/utilities/spy.js)
