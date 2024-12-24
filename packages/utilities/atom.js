@@ -1,13 +1,10 @@
-import {clone} from 'rambda'
-
-// TODO: test
 export class Atom {
   static of(initialValue, {keepHistory = false} = {}) {
     return new Atom(initialValue, {keepHistory})
   }
 
   constructor(initialValue = {}, {keepHistory = false} = {}) {
-    if (initialValue === null || initialValue.constructor === Object) {
+    if (initialValue.constructor === Object) {
       this.#value = Object.freeze(initialValue)
       this.#keepHistory = keepHistory
     } else
@@ -15,15 +12,18 @@ export class Atom {
   }
 
   update = (update, updates) => {
+    const currentValue = this.get()
     if (this.#keepHistory) this.#updates.push([update, updates])
-    else this.#value = Object.freeze(update(clone(this.#value), updates))
+    else this.#value = Object.freeze(update(this.#value, updates))
     const value = this.get()
-    for (const subscriber of this.#subscribers) subscriber(value)
+    for (const subscriber of this.#subscribers) subscriber(value, currentValue)
     return value
   }
 
-  get = (index = 0) => this.#keepHistory
-    ? this.#updates.slice(index).reduce((acc, [updater, updates]) => updater(acc, updates), this.#value)
+  get = (index) => this.#keepHistory
+    ? this.#updates
+        .slice(0, index)
+        .reduce((acc, [updater, updates]) => updater(acc, updates), this.#value)
     : this.#value
 
   subscribe = (subscriber) => {
