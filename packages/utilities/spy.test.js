@@ -90,17 +90,27 @@ suite('Function Spy', () => {
       assert.throws(() => fn(), anotherError)
     })
 
-    test('stub return value for certain argument set', () => {
+    test('stub return value for certain argument set', async () => {
       const fn = new FunctionSpy()
+      const asyncFn = new AsyncFunctionSpy()
 
       fn.for('arg1').returns('result for arg1')
       fn.for('arg1', 'arg2').returns('result for arg1, arg2')
       fn.for(['array', 'argument'], {dictionary: 'argument'}).returns('result for complex arguments')
-
+        
       assert.equal(fn('unknown'), undefined)
       assert.equal(fn('arg1'), 'result for arg1')
       assert.equal(fn('arg1', 'arg2'), 'result for arg1, arg2')
       assert.equal(fn(['array', 'argument'], {dictionary: 'argument'}), 'result for complex arguments')
+      
+      asyncFn.for('arg1').returns('result for arg1')
+      asyncFn.for('arg1', 'arg2').returns('result for arg1, arg2')
+      asyncFn.for(['array', 'argument'], {dictionary: 'argument'}).returns('result for complex arguments')
+
+      assert.equal(await asyncFn('unknown'), undefined)
+      assert.equal(await asyncFn('arg1'), 'result for arg1')
+      assert.equal(await asyncFn('arg1', 'arg2'), 'result for arg1, arg2')
+      assert.equal(await asyncFn(['array', 'argument'], {dictionary: 'argument'}), 'result for complex arguments')
     })
 
     test('fake function', () => {

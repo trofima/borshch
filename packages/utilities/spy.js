@@ -103,11 +103,9 @@ export class AsyncFunctionSpy extends BaseFunctionSpy {
       context.addCall(args)
       if (context.deferred) context.deferredCalls.push(deferred)
       else if (context.error) deferred.reject(context.error)
-      else deferred.resolve(context.returnValue)
+      else deferred.resolve(execute(context, args, fake))
 
-      return fake
-        ? deferred.promise.then(() => execute(context, args, fake))
-        : deferred.promise
+      return deferred.promise
     }
 
     super(spy, context)
