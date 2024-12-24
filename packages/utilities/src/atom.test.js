@@ -1,6 +1,6 @@
 import {assert} from 'chai'
 import {Atom} from './atom.js'
-import {FunctionSpy} from './spy.js'
+import {FunctionSpy} from '../spy.js'
 
 suite('Atom', () => {
   test('updating state', async () => {
