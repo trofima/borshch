@@ -117,7 +117,7 @@ export class AsyncFunctionSpy extends BaseFunctionSpy {
     this.#context.deferred = true
   }
 
-  async return(index, value) {
+  async resolve(index, value) {
     const deferredReturn = new Deferred()
     setImmediate(() => {
       const deferredCall = this.#context.deferredCalls.at(index)
@@ -128,7 +128,7 @@ export class AsyncFunctionSpy extends BaseFunctionSpy {
     return deferredReturn.promise
   }
 
-  async fail(index, error) {
+  async reject(index, error) {
     const deferredFail = new Deferred()
     setImmediate(() => {
       const deferredCall = this.#context.deferredCalls.at(index)

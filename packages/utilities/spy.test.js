@@ -97,12 +97,12 @@ suite('Function Spy', () => {
       fn.for('arg1').returns('result for arg1')
       fn.for('arg1', 'arg2').returns('result for arg1, arg2')
       fn.for(['array', 'argument'], {dictionary: 'argument'}).returns('result for complex arguments')
-        
+
       assert.equal(fn('unknown'), undefined)
       assert.equal(fn('arg1'), 'result for arg1')
       assert.equal(fn('arg1', 'arg2'), 'result for arg1, arg2')
       assert.equal(fn(['array', 'argument'], {dictionary: 'argument'}), 'result for complex arguments')
-      
+
       asyncFn.for('arg1').returns('result for arg1')
       asyncFn.for('arg1', 'arg2').returns('result for arg1, arg2')
       asyncFn.for(['array', 'argument'], {dictionary: 'argument'}).returns('result for complex arguments')
@@ -176,11 +176,11 @@ suite('Function Spy', () => {
       assert.equal(result0, undefined)
       assert.equal(result1, undefined)
 
-      await fn.return(0, 'result 0')
+      await fn.resolve(0, 'result 0')
       assert.equal(result0, 'result 0')
       assert.equal(result1, undefined)
 
-      await fn.return(1, 'result 1')
+      await fn.resolve(1, 'result 1')
       assert.equal(result1, 'result 1')
     })
 
@@ -208,11 +208,11 @@ suite('Function Spy', () => {
       assert.equal(error0, undefined)
       assert.equal(error1, undefined)
 
-      await fn.fail(0, expectedError0)
+      await fn.reject(0, expectedError0)
       assert.equal(error0, expectedError0)
       assert.equal(error1, undefined)
 
-      await fn.fail(1, expectedError1)
+      await fn.reject(1, expectedError1)
       assert.equal(error1, expectedError1)
     })
 
