@@ -1,4 +1,4 @@
-import ReflectAttributes from '../../../../components/common/mixins/reflect-attributes.js'
+import ReflectAttributes from '../../../../src/components/common/mixins/reflect-attributes.js'
 import HistoryListener from './HistoryListener.js'
 import WindowListener from './WindowListener.js'
 import WheelStartListener from './WheelStartListener.js'
