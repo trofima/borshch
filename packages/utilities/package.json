@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/trofima/borshch/packages/utilities#readme",
   "scripts": {
-    "test": "mocha -u tdd --timeout 10000 --colors ./**/*.test.js",
+    "test": "mocha -u tdd --timeout 10000 --colors './src/**/*.test.js'",
     "lint": "eslint --fix",
     "lint-staged": "lint-staged"
   },
