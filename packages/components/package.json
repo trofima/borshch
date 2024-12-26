@@ -1,17 +1,22 @@
 {
-  "name": "borshch",
+  "name": "@borshch/components",
   "version": "0.3.0",
   "description": "Tools for vanilla webcomponents",
-  "type": "module",
+  "author": "trofima",
+  "license": "ISC",
   "main": "index.js",
-  "files": [
-    "dist",
-    "README.md"
-  ],
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     "import": "./dist/borshch.js",
     "require": "./dist/borshch.cjs"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/trofima/borshch.git"
@@ -21,12 +26,7 @@
     "borscht",
     "webcomponents"
   ],
-  "author": "trofima",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/trofima/borshch/issues"
-  },
-  "homepage": "https://github.com/trofima/borshch#readme",
+  "homepage": "https://github.com/trofima/borshch/packages/components#readme",
   "scripts": {
     "start": "node playground/server.js",
     "prebuild": "rm -rf dist/*",
