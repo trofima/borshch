@@ -171,7 +171,7 @@ class BaseElementWrapper {
 
   async transit({from, to}, options) {
     if (from) await this.animate([from, to], options)
-    
+
     this.style(to) //TODO: use animation.commitStyles()
   }
 }
@@ -324,7 +324,7 @@ export default class Component extends HTMLElement {
 
       return Array.from(this.children).filter(node => node instanceof Type)
     }
-    
+
     return Array.from(this.children)
   }
 

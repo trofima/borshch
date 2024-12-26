@@ -1,7 +1,7 @@
 import Component from '../../common/DeprecatedComponent'
 import { browserHistory } from '../../common/services'
-import mixin, { 
-  HistoryListener, ReflectAttributes, SwipeStartListener, WheelStartListener, 
+import mixin, {
+  HistoryListener, ReflectAttributes, SwipeStartListener, WheelStartListener,
   WindowListener, ChildrenObserver,
 } from '../../common/utils/mixin'
 import Slide from '../slide'
@@ -12,8 +12,8 @@ const transitions = {
     ? {to: {transform: `translate3d(${-offsetLeft}px, 0, 0)`}}
     : {to: {transform: `translate3d(0, ${-offsetTop}px, 0)`}},
   slide: (
-    horizontal, 
-    {offsetTop: prevOffsetTop, offsetLeft: prevOffsetLeft}, 
+    horizontal,
+    {offsetTop: prevOffsetTop, offsetLeft: prevOffsetLeft},
     {offsetTop, offsetLeft},
   ) => horizontal
     ? {
@@ -44,8 +44,8 @@ class SliderState {
   get slideCount() {return this.#slides.length}
   hash = (index = this.#index) => this.slideByIndex(index).hash
   has = index => Boolean(this.#slides[index])
-  slideByHash = ({hash, hashParts}) => 
-    this.#anchorMap.get(hashParts.find(hashPart => 
+  slideByHash = ({hash, hashParts}) =>
+    this.#anchorMap.get(hashParts.find(hashPart =>
       this.#anchorMap.has(hashPart)) || hash)
   slideByIndex = index => this.#slides[index].el
 
@@ -85,7 +85,7 @@ export default class BorshchSlider extends mixin(
   get #paralaxLast() {
     return this['paralax-last'] && ( //TODO: create case objects (aka pattern matching)?
       this.#state.index === this.#state.lastIndex
-      || this.#state.prevIndex === this.#state.lastIndex 
+      || this.#state.prevIndex === this.#state.lastIndex
         && this.#state.index === this.#state.lastIndex - 1
     )
   }
@@ -191,10 +191,10 @@ export default class BorshchSlider extends mixin(
     const index = this.#state.index + direction
 
     if (this.infinite)
-      return index < 0 
-        ? this.#state.lastIndex 
-        : index > this.#state.lastIndex 
-        ? 0 
+      return index < 0
+        ? this.#state.lastIndex
+        : index > this.#state.lastIndex
+        ? 0
         : index
 
     return index
@@ -237,14 +237,14 @@ export default class BorshchSlider extends mixin(
     const a = () => { //TODO: refactor!!!
       const delta = prevIndex - index
       const direction = Math.abs(delta) / delta // -1 down, 1 up
-  
-      let html = ``
+
+      let html = ''
       const siblingIndex = prevIndex - direction
-  
+
       for (let i = Math.min(index, siblingIndex); i <= Math.max(index, siblingIndex); i++) {
         html += `<slot name=${i}></slot>`
       }
-  
+
       this.#slider[direction < 0 ? 'attach' : 'pretach'](html)
     }
 
@@ -267,17 +267,17 @@ export default class BorshchSlider extends mixin(
     if (prevAnimation?.playState === 'running') prevAnimation.cancel()
 
     try {
-      if (this.paralax || this.#paralaxFirst || this.#paralaxLast) 
+      if (this.paralax || this.#paralaxFirst || this.#paralaxLast)
         await Promise.all([
           this.#slider.transit(transition, this.#transitionOptions),
           this.#transitBackground(transitionName, index, prevIndex),
         ])
-      else 
+      else
         await this.#slider.transit(transition, {duration: this.duration, easing: this.easing})
 
       this.#slider.reattach(`<slot name=${index}></slot>`)
-      this.#slider.style({transform: `translate3d(0, 0, 0)`})
-        
+      this.#slider.style({transform: 'translate3d(0, 0, 0)'})
+
       this.#slideChanged()
     } catch (err) {
       console.info(`Slider animation interrupted. Reason: ${err.message}`)
@@ -301,16 +301,16 @@ export default class BorshchSlider extends mixin(
     if (!this.infinite) {
       const fadeIn = {from: transition && {opacity: 0}, to: {opacity: 1}}
       const fadeOut = {from: transition && {opacity: 1}, to: {opacity: 0}}
-  
-      if (this.#state.index === 0) 
+
+      if (this.#state.index === 0)
         this.#prev.transit(fadeOut, this.#transitionOptions)
-      else if (this.#state.prevIndex === 0 && this.#state.index === 1) 
+      else if (this.#state.prevIndex === 0 && this.#state.index === 1)
         this.#prev.transit(fadeIn, this.#transitionOptions)
-  
+
       if (this.#state.index === this.#state.lastIndex)
         this.#next.transit(fadeOut, this.#transitionOptions)
       else if (
-        this.#state.prevIndex === this.#state.lastIndex 
+        this.#state.prevIndex === this.#state.lastIndex
         && this.#state.index === this.#state.lastIndex - 1
       ) this.#next.transit(fadeIn, this.#transitionOptions)
     }

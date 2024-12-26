@@ -1,18 +1,18 @@
-import {wheel} from '../../services/index.js';
-import {lockable} from '../index.js';
+import {wheel} from '../../services/index.js'
+import {lockable} from '../index.js'
 
 const WheelListener = Base => class WheelListener extends Base {
   connectedCallback() {
-    super.connectedCallback();
+    super.connectedCallback()
     //TODO trofima: settings validation
-    const {target, throttle, listener} = this.onWheel();
+    const {target, throttle, listener} = this.onWheel()
 
-    wheel.bind(this, listener, {target, throttle});
+    wheel.bind(this, listener, {target, throttle})
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback();
-    wheel.unbind(this);
+    super.disconnectedCallback()
+    wheel.unbind(this)
   }
 
   onWheel() {
@@ -22,6 +22,6 @@ const WheelListener = Base => class WheelListener extends Base {
       listener: () => {},
     }
   }
-};
+}
 
-export default lockable(WheelListener);
+export default lockable(WheelListener)

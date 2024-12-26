@@ -45,14 +45,14 @@ const connect = store => Base => class Connected extends Base {
     const listeners = this.onStore()
 
     if (store instanceof Store) action(store, listeners)
-    else Object.entries(store).forEach(([storeName, store]) => 
+    else Object.entries(store).forEach(([storeName, store]) =>
       action(store, listeners[storeName]))
   }
 
   #connectToStore = this.#forEachStore((store, listeners) => {
     const propsToListen = Object.keys(listeners)
 
-    propsToListen.length && store.onUpdate(this, (prop, ...args) => 
+    propsToListen.length && store.onUpdate(this, (prop, ...args) =>
       propsToListen.includes(prop) && listeners[prop](...args))
   })
 

@@ -1,3 +1,3 @@
-import Service from './Service.js';
+import Service from './Service.js'
 
-export default new Service({target: window});
+export default new Service({target: window})

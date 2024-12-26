@@ -1,14 +1,14 @@
 export default class ExtendedMap extends Map {
   getOrSet(key, defaultVal) {
-    return this.get(key) || this.set(key, defaultVal).get(key);
+    return this.get(key) || this.set(key, defaultVal).get(key)
   }
 
   getIndex(key) {
-    const keys = this.keys();
+    const keys = this.keys()
 
     for (let i = 0; i < this.size; i++)
       if (key === keys.next().value)
-        return i;
+        return i
   }
 }
 

@@ -1,3 +1,3 @@
-import Service from './Service';
+import Service from './Service'
 
-export default new Service({target: window}); //TODO: validation
+export default new Service({target: window}) //TODO: validation

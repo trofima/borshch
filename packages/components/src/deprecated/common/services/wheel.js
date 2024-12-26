@@ -1,3 +1,3 @@
 import Service from './Service.js'
 
-export default new Service({target: window, name: 'wheel'});
+export default new Service({target: window, name: 'wheel'})

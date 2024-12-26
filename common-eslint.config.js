@@ -3,16 +3,19 @@ import pluginJs from '@eslint/js'
 
 export const commonEslintConfig = [
   pluginJs.configs.recommended, {
-  languageOptions: {
-    globals: {
-      ...globals.node,
-      ...globals.mocha,
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.mocha,
+      },
     },
+    rules: {
+      'quotes': ['warn', 'single'],
+      'semi': ['warn', 'never'],
+      'no-trailing-spaces': ['warn'],
+      'no-unused-vars': ['warn']
+    },
+  }, {
+    ignores: ['dist/*'],
   },
-  rules: {
-    'quotes': ['warn', 'single'],
-    'semi': ['warn', 'never'],
-    'no-trailing-spaces': ['warn'],
-    'no-unused-vars': ['warn']
-  },
-}]
+]
