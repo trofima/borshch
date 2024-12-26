@@ -1,6 +1,6 @@
 import {assert} from 'chai'
 import {Atom} from './atom.js'
-import {FunctionSpy} from '../spy.js'
+import {FunctionSpy} from './spy.js'
 
 suite('Atom', () => {
   test('updating state', async () => {
@@ -15,10 +15,16 @@ suite('Atom', () => {
     const state2 = atom.update((model) => ({...model, prop: 'another value', anotherProp: 'value'}))
     assert.deepEqual(state2, {prop: 'another value', anotherProp: 'value'})
     assert.deepEqual(atom.get(), {prop: 'another value', anotherProp: 'value'})
+  })
 
-    const state3 = atom.update((model, updates) => ({...model, ...updates}), {anotherProp: 'updated value'})
-    assert.deepEqual(state3, {prop: 'another value', anotherProp: 'updated value'})
-    assert.deepEqual(atom.get(), {prop: 'another value', anotherProp: 'updated value'})
+  test('update state with updater and updates', () => {
+    const atom = Atom.of({prop: 'value', anotherProp: 'another value'})
+    const merge = (model, updates) => ({...model, ...updates})
+
+    const state = atom.update(merge, {anotherProp: 'updated value'})
+
+    assert.deepEqual(state, {prop: 'value', anotherProp: 'updated value'})
+    assert.deepEqual(atom.get(), {prop: 'value', anotherProp: 'updated value'})
   })
 
   test('updating state with history', async () => {
