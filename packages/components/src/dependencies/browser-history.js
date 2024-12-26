@@ -1,4 +1,5 @@
-import {EventEmitter, removeEndingSlash} from '../utilities/index.js'
+import {EventEmitter} from '@borshch/utilities'
+import {removeEndingSlash} from '../utilities/index.js'
 
 export default class BrowserHistory extends EventEmitter {
   constructor() {

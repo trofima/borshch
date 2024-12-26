@@ -1,4 +1,5 @@
-import {mixin, removeEndingSlash} from '../../utilities/index.js'
+import {mixin} from '@borshch/utilities'
+import {removeEndingSlash} from '../../utilities/index.js'
 import {BorshchDefaultRoute} from './borshch-default-route.js'
 import {ReflectAttributes} from '../common/index.js'
 

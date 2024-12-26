@@ -1,5 +1,6 @@
+import {mixin} from '@borshch/utilities'
 import render from './borshch-router-link.ejs'
-import {mixin, removeEndingSlash} from '../../utilities/index.js'
+import {removeEndingSlash} from '../../utilities/index.js'
 import {BorshchComponent, ReflectAttributes} from '../common/index.js'
 import borshchRouterManager from './borshch-router-manager-instance.js'
 

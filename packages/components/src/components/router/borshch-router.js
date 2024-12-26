@@ -1,4 +1,4 @@
-import {mixin} from '../../utilities/index.js'
+import {mixin} from '@borshch/utilities'
 import {BorshchComponent, ReflectAttributes} from '../common/index.js'
 import BorshchRoute from './borshch-route.js'
 import BorshchDefaultRoute from './borshch-default-route.js'
