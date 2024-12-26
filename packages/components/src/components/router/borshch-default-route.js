@@ -1,5 +1,5 @@
-import {mixin} from '../../utilities'
-import {BorshchComponent, ReflectAttributes} from '../common'
+import {mixin} from '../../utilities/index.js'
+import {BorshchComponent, ReflectAttributes} from '../common/index.js'
 
 export class BorshchDefaultRoute extends mixin(
   BorshchComponent,

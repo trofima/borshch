@@ -1,5 +1,5 @@
-export {default as Deferred} from './deferred'
-export {default as EventEmitter} from './event-emitter'
+export {default as Deferred} from './Deferred.js'
+export {default as EventEmitter} from './event-emitter.js'
 
 export function mixin(Base, ...classes) {
   return classes.reduce((mixedClass, nextClass) => nextClass(mixedClass), Base)

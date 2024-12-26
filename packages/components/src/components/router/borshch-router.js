@@ -1,8 +1,8 @@
-import {mixin} from '../../utilities'
-import {BorshchComponent, ReflectAttributes} from '../common'
-import BorshchRoute from './borshch-route'
-import BorshchDefaultRoute from './borshch-default-route'
-import borshchRouterManager from './borshch-router-manager-instance'
+import {mixin} from '../../utilities/index.js'
+import {BorshchComponent, ReflectAttributes} from '../common/index.js'
+import BorshchRoute from './borshch-route.js'
+import BorshchDefaultRoute from './borshch-default-route.js'
+import borshchRouterManager from './borshch-router-manager-instance.js'
 import render from './borshch-router.ejs'
 
 class BorshchRouter extends mixin(

@@ -1,6 +1,6 @@
-import {mixin, removeEndingSlash} from '../../utilities'
-import {BorshchDefaultRoute} from './borshch-default-route'
-import {ReflectAttributes} from '../common'
+import {mixin, removeEndingSlash} from '../../utilities/index.js'
+import {BorshchDefaultRoute} from './borshch-default-route.js'
+import {ReflectAttributes} from '../common/index.js'
 
 class BorshchRoute extends mixin(
   BorshchDefaultRoute,

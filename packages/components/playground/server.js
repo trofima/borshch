@@ -5,7 +5,7 @@ import {rollup} from 'rollup'
 import nodeResolve from '@rollup/plugin-node-resolve'
 import ejs from 'rollup-plugin-ejs'
 import chalk from 'chalk'
-import data from './data.json' assert {type: 'json'}
+import data from './data.json' with {type: 'json'}
 
 process.chdir(dirname(fileURLToPath(import.meta.url)))
 const staticFilesRegExp = /.+\..+/

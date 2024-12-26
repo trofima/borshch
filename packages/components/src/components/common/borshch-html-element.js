@@ -1,5 +1,5 @@
-import {waitForElementToBeDefined, convertPascalToDashCase, mixin} from '../../utilities'
-import BorshchTransition from './borshch-transition'
+import {waitForElementToBeDefined, convertPascalToDashCase, mixin} from '../../utilities/index.js'
+import BorshchTransition from './borshch-transition.js'
 
 export const BorshchHtmlElement = BorshchHtmlElementOf()
 

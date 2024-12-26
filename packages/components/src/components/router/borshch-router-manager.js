@@ -1,4 +1,4 @@
-import transitionByName from './transition-map'
+import transitionByName from './transition-map.js'
 export default class BorshchRouterManager {
   constructor({history, page}) {
     this.#history = history

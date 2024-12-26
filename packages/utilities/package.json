@@ -1,18 +1,27 @@
 {
   "name": "@borshch/utilities",
   "description": "Borshch utilities",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "author": "trofima",
   "license": "ISC",
-  "main": "src/index.js",
   "type": "module",
   "publishConfig": {
     "access": "public"
   },
+  "exports": {
+    "import": "./dist/borshch-utilities.js",
+    "require": "./dist/borshch-utilities.cjs"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "keywords": [
     "spy",
     "function spy",
     "deferred",
+    "atom",
+    "mixin",
     "event emitter"
   ],
   "repository": {
@@ -21,6 +30,9 @@
   },
   "homepage": "https://github.com/trofima/borshch/packages/utilities#readme",
   "scripts": {
+    "prepublishOnly": "build",
+    "prebuild": "rm -rf dist/*",
+    "build": "rollup -c",
     "test": "mocha -u tdd --timeout 10000 --colors './src/**/*.test.js'",
     "lint": "eslint --fix",
     "lint-staged": "lint-staged"
@@ -39,7 +51,9 @@
     "lint-staged": "^15.2.11",
     "mocha": "^11.0.1",
     "pre-commit": "^1.2.2",
-    "pre-push": "^0.1.4"
+    "pre-push": "^0.1.4",
+    "rollup": "^4.29.1",
+    "terser": "^5.37.0"
   },
   "dependencies": {
     "object-hash": "^3.0.0",

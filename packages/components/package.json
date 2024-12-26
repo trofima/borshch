@@ -1,17 +1,16 @@
 {
   "name": "@borshch/components",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Tools for vanilla webcomponents",
   "author": "trofima",
   "license": "ISC",
-  "main": "index.js",
   "type": "module",
   "publishConfig": {
     "access": "public"
   },
   "exports": {
-    "import": "./dist/borshch.js",
-    "require": "./dist/borshch.cjs"
+    "import": "./dist/borshch-components.js",
+    "require": "./dist/borshch-components.cjs"
   },
   "files": [
     "dist",
@@ -29,6 +28,7 @@
   "homepage": "https://github.com/trofima/borshch/packages/components#readme",
   "scripts": {
     "start": "node playground/server.js",
+    "prepublishOnly": "build",
     "prebuild": "rm -rf dist/*",
     "build": "rollup -c",
     "test": "mocha -u tdd --timeout 10000 --colors './src/**/*.test.js'",

@@ -1,2 +1,2 @@
-export {default as BorshchComponent} from './borshch-component'
-export * from './mixins'
+export {default as BorshchComponent} from './borshch-component.js'
+export * from './mixins/index.js'

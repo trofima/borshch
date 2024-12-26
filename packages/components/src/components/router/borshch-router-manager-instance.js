@@ -1,5 +1,5 @@
-import BorshchRouterManager from './borshch-router-manager'
-import {BrowserHistory, WebPage} from '../../dependencies'
+import BorshchRouterManager from './borshch-router-manager.js'
+import {BrowserHistory, WebPage} from '../../dependencies/index.js'
 
 export default new BorshchRouterManager({
   history: new BrowserHistory(),
