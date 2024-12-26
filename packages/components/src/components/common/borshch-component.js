@@ -1,4 +1,4 @@
-import {BorshchHtmlElement, BorshchElementOf} from './borshch-html-element'
+import {BorshchHtmlElement, BorshchElementOf} from './borshch-html-element.js'
 
 export default class BorshchComponent extends BorshchElementOf(HTMLElement) {
   constructor() {
