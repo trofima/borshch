@@ -1,9 +1,9 @@
 import {waitForElementToBeDefined, convertPascalToDashCase, mixin} from '../../utilities'
 import BorshchTransition from './borshch-transition'
 
-export default BorshchHtmlElement()
+export const BorshchHtmlElement = BorshchHtmlElementOf()
 
-function BorshchHtmlElement(Base = class {}) {
+function BorshchHtmlElementOf(Base = class {}) {
   return class BorshchHtmlElement extends Base {
     static of(htmlElement) {
       const {
@@ -36,7 +36,7 @@ function BorshchHtmlElement(Base = class {}) {
     getChildren() {
       return Array
         .from(this.children)
-        .map(child => child instanceof BorshchHtmlElement ? child : new BorshchElement(child))
+        .map(child => child instanceof BorshchHtmlElement ? child : new BorshchElementOf(child))
     }
 
     async getChildComponents(Type) {
@@ -51,18 +51,14 @@ function BorshchHtmlElement(Base = class {}) {
   }
 }
 
-export function BorshchElement(BaseHtmlElement, extendNativeElement) {
-  return class BorshchElement extends mixin(BaseHtmlElement, BorshchHtmlElement) {
+export function BorshchElementOf(BaseHtmlElement) {
+  return class BorshchElement extends mixin(BaseHtmlElement, BorshchHtmlElementOf) {
     static get componentName() {
       return convertPascalToDashCase(this.name || this.__proto__.name) //HACK: __proto__ - is the Safari hack
     }
 
     static define() {
-      customElements.define(
-        this.componentName,
-        this,
-        extendNativeElement ? {extends: extendNativeElement} : undefined,
-      )
+      customElements.define(this.componentName, this)
       return this
     }
 

@@ -1,5 +1,5 @@
 import hash from 'object-hash'
-import {Deferred} from './src/deferred.js'
+import {Deferred} from './deferred.js'
 
 class ExtensibleFunction extends Function {
   constructor(func) {

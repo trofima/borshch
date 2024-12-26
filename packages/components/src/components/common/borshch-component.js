@@ -1,6 +1,6 @@
-import BorshchHtmlElement, {BorshchElement} from './borshch-html-element'
+import {BorshchHtmlElement, BorshchElementOf} from './borshch-html-element'
 
-export default class BorshchComponent extends BorshchElement(HTMLElement) {
+export default class BorshchComponent extends BorshchElementOf(HTMLElement) {
   constructor() {
     super()
     this.attachShadow({mode: 'open'})
