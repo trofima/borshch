@@ -28,7 +28,7 @@
   "homepage": "https://github.com/trofima/borshch/packages/components#readme",
   "scripts": {
     "start": "node playground/server.js",
-    "prepublishOnly": "build",
+    "prepublishOnly": "npm run build",
     "prebuild": "rm -rf dist/*",
     "build": "rollup -c",
     "test": "mocha -u tdd --timeout 10000 --colors './src/**/*.test.js'",

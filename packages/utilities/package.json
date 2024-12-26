@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/trofima/borshch/packages/utilities#readme",
   "scripts": {
-    "prepublishOnly": "build",
+    "prepublishOnly": "npm run build",
     "prebuild": "rm -rf dist/*",
     "build": "rollup -c",
     "test": "mocha -u tdd --timeout 10000 --colors './src/**/*.test.js'",
