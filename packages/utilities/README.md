@@ -4,6 +4,9 @@ Several utilities used in borshch components
 >[!CAUTION]
 >package have no typings, so may have troubles with integration to TS projects. Didn't check yet.
 
+>[!CAUTION]
+>cjs version is bundled, but has not been tested yet. you are welcome to give feedback or even create PR with a fix. But better stop using cjs. Forever.
+
 ## Installation
 ```
 npm i @borshch/utilities
