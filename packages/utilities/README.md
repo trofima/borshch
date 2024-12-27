@@ -11,7 +11,7 @@ npm i @borshch/utilities
 
 ### Atom
 State holder. Applies supplied function to current value and uses its result as new value (idea borrowed from Clojure Atom)<br>
-Usage [examples](https://github.com/trofima/borshch/blob/e2810d29b010b822a8e7dea01bf59890272c8c6e/packages/utilities/Atom.test.js)
+Usage [examples](https://github.com/trofima/borshch/blob/e2810d29b010b822a8e7dea01bf59890272c8c6e/packages/utilities/src/atom.test.js)
 
 ### Deferred
 Creates deferred promise that you can manually control resolution and rejection<br>
