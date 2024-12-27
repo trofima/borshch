@@ -1,6 +1,6 @@
 {
   "name": "@borshch/components",
-  "version": "0.3.4",
+  "version": "0.3.6",
   "description": "Tools for vanilla webcomponents",
   "author": "trofima",
   "license": "ISC",
@@ -60,6 +60,6 @@
     "rollup-plugin-ejs": "^4.0.1"
   },
   "dependencies": {
-    "@borshch/utilities": "^2.1.4"
+    "@borshch/utilities": "^2.1.6"
   }
 }

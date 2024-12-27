@@ -6,8 +6,8 @@ const external = [...Object.keys(pkg.peerDependencies ?? {}), ...Object.keys(pkg
 export default {
   input: './src/index.js',
   output: [
-    {dir: './dist/cjs', format: 'cjs', exports: 'auto', preserveModules: true},
-    {dir: './dist/es', format: 'es', preserveModules: true},
+    {file: pkg.exports.require, format: 'cjs', exports: 'auto'},
+    {file: pkg.exports.import, format: 'es'},
   ],
   plugins: [
     terser({keep_classnames: true}),
