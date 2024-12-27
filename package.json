@@ -1,11 +1,9 @@
 {
   "name": "borshch",
+  "private": true,
   "workspaces": [
     "packages/*"
   ],
   "type": "module",
-  "dependencies": {
-    "rambda": "^9.4.1"
-  },
   "version": "1.0.0"
 }

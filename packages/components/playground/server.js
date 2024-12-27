@@ -3,6 +3,7 @@ import {fileURLToPath} from 'url'
 import {dirname} from 'path'
 import {rollup} from 'rollup'
 import nodeResolve from '@rollup/plugin-node-resolve'
+import commonjs from '@rollup/plugin-commonjs';
 import ejs from 'rollup-plugin-ejs'
 import chalk from 'chalk'
 import data from './data.json' with {type: 'json'}
@@ -22,7 +23,7 @@ app.use(async (request, __, next) => {
     try {
       const bundle = await rollup({
         input: 'src/app/index.js',
-        plugins: [nodeResolve(), ejs({inlineStyles: true})],
+        plugins: [commonjs(), nodeResolve(), ejs({inlineStyles: true})],
       })
 
       await bundle.write({
