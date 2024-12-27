@@ -1,7 +1,7 @@
 {
   "name": "@borshch/utilities",
   "description": "Borshch utilities",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "author": "trofima",
   "license": "ISC",
   "type": "module",
@@ -9,8 +9,8 @@
     "access": "public"
   },
   "exports": {
-    "import": "./dist/cjs/index.js",
-    "require": "./dist/es/index.js"
+    "import": "./dist/es/index.js",
+    "require": "./dist/cjs/index.js"
   },
   "files": [
     "dist",
