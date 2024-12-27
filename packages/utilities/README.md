@@ -2,7 +2,7 @@
 Several utilities used in borshch components
 
 >[!CAUTION]
->package does not support common js imports.
+>package have no typings, so may have troubles with integration to TS projects. Didn't check yet.
 
 ## Installation
 ```
