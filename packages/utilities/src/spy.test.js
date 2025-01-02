@@ -113,6 +113,30 @@ suite('Function Spy', () => {
       assert.equal(await asyncFn(['array', 'argument'], {dictionary: 'argument'}), 'result for complex arguments')
     })
 
+    test('stub return value for certain argument by index', async () => {
+      const fn = new FunctionSpy()
+      const asyncFn = new AsyncFunctionSpy()
+
+      fn.forArg(0, 'arg1').returns('result for first arg arg1')
+      fn.forArg(1, 'arg2').returns('result for second arg arg2')
+      fn.forArg(0, ['complex', 'arg']).returns('result for first of complex arguments')
+      fn.forArg(0, 'falsyResult').returns(null)
+
+      assert.equal(fn('arg1', 'irrelevant'), 'result for first arg arg1')
+      assert.equal(fn('irrelevant', 'arg2'), 'result for second arg arg2')
+      assert.equal(fn('arg1', 'arg2'), 'result for first arg arg1')
+      assert.equal(fn(['complex', 'arg'], ['irrelevant']), 'result for first of complex arguments')
+      assert.equal(fn('falsyResult', 'irrelevant'), null)
+
+      asyncFn.forArg(0, 'arg1').returns('result for first arg arg1')
+      asyncFn.forArg(1, 'arg2').returns('result for second arg arg2')
+      asyncFn.forArg(0, ['complex', 'arg']).returns('result for first of complex arguments')
+
+      assert.equal(await asyncFn('arg1', 'irrelevant'), 'result for first arg arg1')
+      assert.equal(await asyncFn('irrelevant', 'arg2'), 'result for second arg arg2')
+      assert.equal(await asyncFn(['complex', 'arg'], ['irrelevant']), 'result for first of complex arguments')
+    })
+
     test('fake function', () => {
       const fakeFn = new FunctionSpy()
       const fn = new FunctionSpy(fakeFn)
@@ -136,6 +160,26 @@ suite('Function Spy', () => {
       ignoredResultFakeFn.returns('result')
       assert.deepEqual(spiedFn(), 'overridden result')
       assert(ignoredResultFakeFn.called)
+    })
+
+    test('stub priority', async () => {
+      const prioritizeFor = new FunctionSpy(() => 'fake result')
+      prioritizeFor.for('arg').returns('for result')
+      prioritizeFor.forArg(0, 'arg').returns('for arg result')
+      prioritizeFor.returns('return result')
+      assert.equal(prioritizeFor('arg'), 'for result')
+
+      const prioritizeForArg = new FunctionSpy(() => 'fake result')
+      prioritizeForArg.forArg(0, 'arg').returns('for arg result')
+      prioritizeForArg.returns('return result')
+      assert.equal(prioritizeForArg('arg'), 'for arg result')
+
+      const prioritizeReturnResult = new FunctionSpy(() => 'fake result')
+      prioritizeReturnResult.returns('return result')
+      assert.equal(prioritizeReturnResult('arg'), 'return result')
+
+      const prioritizeFakeResult = new FunctionSpy(() => 'fake result')
+      assert.equal(prioritizeFakeResult('arg'), 'fake result')
     })
   })
 

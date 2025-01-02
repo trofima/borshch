@@ -13,6 +13,7 @@ class FunctionSpyContext {
   returnValue = undefined
   error = undefined
   forArgumentsToReturnValue = new Map()
+  forOneOfArgumentsToReturnValue = new Map()
 
   addCall(args) {
     this.callCount++
@@ -73,6 +74,14 @@ class BaseFunctionSpy extends ExtensibleFunction {
     this.#context.forArgumentsToReturnValue.set(argumentsHash, undefined)
     return {
       returns: (value) => this.#context.forArgumentsToReturnValue.set(argumentsHash, value),
+    }
+  }
+
+  forArg(index, value) {
+    const argumentsHash = hash([index, value])
+    this.#context.forOneOfArgumentsToReturnValue.set(argumentsHash, undefined)
+    return {
+      returns: (returnValue) => this.#context.forOneOfArgumentsToReturnValue.set(argumentsHash, returnValue)
     }
   }
 
@@ -144,5 +153,14 @@ export class AsyncFunctionSpy extends BaseFunctionSpy {
 
 const execute = (context, args, fake) => {
   const fakeResult = fake?.(...args)
-  return context.forArgumentsToReturnValue.get(hash(args)) ?? context.returnValue ?? fakeResult
+  return context.forArgumentsToReturnValue.get(hash(args))
+    ?? getReturnValueForOneOfArgs(context, args)
+    ?? context.returnValue
+    ?? fakeResult
+}
+
+const getReturnValueForOneOfArgs = (context, args) => {
+  for (const [index, arg] of args.entries())
+    if (context.forOneOfArgumentsToReturnValue.has(hash([index, arg])))
+      return context.forOneOfArgumentsToReturnValue.get(hash([index, arg]))
 }
