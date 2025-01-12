@@ -135,4 +135,34 @@ suite('Atom', () => {
     assert.deepEqual(atom3.get(), {prop: 'initial value'})
     assert.throw(() => atom3.get(1), Error, 'Atom.get: history entry at index 1 does not exist')
   })
+
+  test('static interface', async () => {
+    const atom = Atom.of(undefined, {keepHistory: true})
+
+    const initResult = Atom.init(atom, {prop: 'initial value'})
+    assert.throw(() => Atom.init([]), 'Atom.init can init only atoms. Got \'Array\' instead')
+    assert.deepEqual(initResult, {prop: 'initial value'})
+    assert.deepEqual(atom.get(), {prop: 'initial value'})
+
+    const updateResult = Atom.update(atom, () => ({prop: 'value'}))
+    assert.throw(() => Atom.update(1), 'Atom.update can update only atoms. Got \'Number\' instead')
+    assert.deepEqual(updateResult, {prop: 'value'})
+    assert.deepEqual(atom.get(), {prop: 'value'})
+
+    assert.throw(() => Atom.get(''), 'Atom.get can get value only from atoms. Got \'String\' instead')
+    assert.deepEqual(Atom.get(atom), {prop: 'value'})
+
+    const subscriber1 = new FunctionSpy()
+    const subscriber2 = new FunctionSpy()
+    const unsubscribe1 = Atom.subscribe(atom, subscriber1)
+    Atom.subscribe(atom, subscriber2)
+    atom.update(() => ({prop: 'another value'}))
+    unsubscribe1()
+    Atom.unsubscribe(atom, subscriber2)
+    atom.update(() => ({irrelevant: 'irrelevant'}))
+    assert.throw(() => Atom.subscribe({}), 'subscribe can subscribe only to atoms. Got \'Object\' instead')
+    assert.throw(() => Atom.unsubscribe({}), 'Atom.unsubscribe can unsubscribe only from atoms. Got \'Object\' instead')
+    assert.deepEqual(subscriber1.lastCall, [{prop: 'another value'}, {prop: 'value'}])
+    assert.deepEqual(subscriber2.lastCall, [{prop: 'another value'}, {prop: 'value'}])
+  })
 })

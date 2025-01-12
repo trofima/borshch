@@ -3,32 +3,32 @@ export class Atom {
     return new Atom(initialValue, {keepHistory})
   }
 
-  static init(atom, initialValue) { //TODO: test
+  static init(atom, initialValue) {
     assertAtom(atom, 'Atom.init can init only atoms')
     return atom.init(initialValue)
   }
 
-  static reset(atom) { //TODO: test
+  static reset(atom) {
     assertAtom(atom, 'Atom.reset can reset only atoms')
     return atom.reset()
   }
 
-  static update(atom, update, ...updates) { //TODO: test
+  static update(atom, update, ...updates) {
     assertAtom(atom, 'Atom.update can update only atoms')
     return atom.update(update, ...updates)
   }
 
-  static get(atom, index) {  //TODO: test
+  static get(atom, index) {
     assertAtom(atom, 'Atom.get can get value only from atoms')
     return atom.get(index)
   }
 
-  static subscribe(atom, subscriber) { //TODO: test
+  static subscribe(atom, subscriber) {
     assertAtom(atom, 'Atom.subscribe can subscribe only to atoms')
     return atom.subscribe(subscriber)
   }
 
-  static unsubscribe(atom, subscriber) { //TODO: test
+  static unsubscribe(atom, subscriber) {
     assertAtom(atom, 'Atom.unsubscribe can unsubscribe only from atoms')
     return atom.unsubscribe(subscriber)
   }
