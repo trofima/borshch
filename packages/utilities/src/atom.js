@@ -3,6 +3,16 @@ export class Atom {
     return new Atom(initialValue, {keepHistory})
   }
 
+  static init(atom, initialValue) { //TODO: test
+    assertAtom(atom, 'Atom.init can init only atoms')
+    return atom.init(initialValue)
+  }
+
+  static reset(atom) { //TODO: test
+    assertAtom(atom, 'Atom.reset can reset only atoms')
+    return atom.reset()
+  }
+
   static update(atom, update, ...updates) { //TODO: test
     assertAtom(atom, 'Atom.update can update only atoms')
     return atom.update(update, ...updates)
@@ -23,16 +33,24 @@ export class Atom {
     return atom.unsubscribe(subscriber)
   }
 
-  constructor(initialValue = {}, {keepHistory = false} = {}) {
-    if (initialValue.constructor === Object) {
-      this.#value = Object.freeze(initialValue)
-      this.#keepHistory = keepHistory
-    } else
-      console.warn(`${initialValue.constructor} type is not supported yet`)
+  constructor(initialValue, {keepHistory = false} = {}) {
+    this.#initialValue = initialValue
+    this.#value = Object.freeze(initialValue)
+    this.#keepHistory = keepHistory
   }
 
-  // TODO: init, when keeps history, can't be reinited, also add static
-  // TODO: reset, when does not keep history, can't be reset, also add static
+  init(initialValue = {}) {
+    if (this.#initialValue !== undefined) throw new Error('Atom.init: atom value is already initialized')
+    this.#value = Object.freeze(initialValue)
+    this.#initialValue =  Object.freeze(initialValue)
+    return this.get()
+  }
+
+  reset() {
+    this.#value = this.#initialValue
+    this.#updates = []
+    return this.get()
+  }
 
   update = (applyChanges, ...changes) => {
     const currentValue = this.get()
@@ -44,9 +62,7 @@ export class Atom {
   }
 
   get = (index) => this.#keepHistory
-    ? this.#updates
-        .slice(0, index)
-        .reduce((acc, [applyChanges, changes]) => applyChanges(acc, ...changes), this.#value)
+    ? this.#applyUpdates(index)
     : this.#value
 
   subscribe = (subscriber) => {
@@ -59,9 +75,17 @@ export class Atom {
   }
 
   #value
+  #initialValue
   #keepHistory = false
   #updates = []
   #subscribers = new Set()
+
+  #applyUpdates = (index) => {
+    if (index > this.#updates.length) throw new Error(`Atom.get: history entry at index ${index} does not exist`)
+    return this.#updates
+      .slice(0, index)
+      .reduce((acc, [applyChanges, changes]) => applyChanges(acc, ...changes), this.#initialValue)
+  }
 }
 
 const assertAtom = (maybeAtom, errorDescription) => {
