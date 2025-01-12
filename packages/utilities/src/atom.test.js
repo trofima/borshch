@@ -21,10 +21,20 @@ suite('Atom', () => {
     const atom = Atom.of({prop: 'value', anotherProp: 'another value'})
     const merge = (model, updates) => ({...model, ...updates})
 
-    const state = atom.update(merge, {anotherProp: 'updated value'})
+    const state = atom.update(merge, {anotherProp: 'updated another value'})
 
-    assert.deepEqual(state, {prop: 'value', anotherProp: 'updated value'})
-    assert.deepEqual(atom.get(), {prop: 'value', anotherProp: 'updated value'})
+    assert.deepEqual(state, {prop: 'value', anotherProp: 'updated another value'})
+    assert.deepEqual(atom.get(), {prop: 'value', anotherProp: 'updated another value'})
+  })
+
+  test('update state with updater and multiple updates', () => {
+    const atom = Atom.of({prop: 'value', anotherProp: 'another value'})
+    const assign = (model, prop, value) => ({...model, [prop]: value})
+
+    const state = atom.update(assign, 'prop', 'updated value')
+
+    assert.deepEqual(state, {prop: 'updated value', anotherProp: 'another value'})
+    assert.deepEqual(atom.get(), {prop: 'updated value', anotherProp: 'another value'})
   })
 
   test('updating state with history', async () => {
