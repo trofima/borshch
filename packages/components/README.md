@@ -3,9 +3,9 @@ Tools for vanilla [webcomponents](https://developer.mozilla.org/en-US/docs/Web/W
 
 _Borshch - is a Ukrainian soup consisting from a lot of ingredients. This lib is a pan of components major ones of which can be used separately and in combination. So enjoy._
 
->**VERY IMPORTANT NOTE**<br>
-The project is in ALPHA stage of development, so use it on your own risk (better not:). ANYTHING can be changed at any moment! Since I have no much time for development and supporting the project so don't expect quick feedback.<br>
-Also bundle is not transpiled, so it will work only in modern browsers.
+>[!CAUTION]
+>The project is in ALPHA stage of development, so use it on your own risk (better not:). ANYTHING can be changed at any moment! Since I have no much time for development and >supporting the project so don't expect quick feedback.<br>
+>Also bundle is not transpiled, so it will work only in modern browsers.
 
 **For usage examples refer to the [PlaygroundApp](https://github.com/trofima/borshch/tree/main/playground/src/app)**
 
