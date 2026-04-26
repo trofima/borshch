@@ -57,7 +57,7 @@ suite('Atom', () => {
   })
 
   test('undo state update', async () => {
-    const atom = new Atom({}, { withHistory: true })
+    const atom = new Atom({prop: 'initialValue'}, { withHistory: true })
 
     atom.update(() => ({ prop: 'value' }))
     atom.update(() => ({ prop: 'anotherValue' }))
@@ -67,11 +67,9 @@ suite('Atom', () => {
     assert.deepEqual(atom.get(), { prop: 'value' })
 
     const prevState1 = atom.undo()
-    assert.deepEqual(prevState1, {})
-    assert.deepEqual(atom.get(), {})
+    assert.deepEqual(prevState1, {prop: 'initialValue'})
+    assert.deepEqual(atom.get(), {prop: 'initialValue'})
   })
-  
-  
 
   test('subscription', () => {
     const atom = new Atom({}, {withHistory: true})
@@ -106,8 +104,8 @@ suite('Atom', () => {
   test('initialize state', async () => {
     const atom1 = new Atom()
     const state1 = atom1.init()
-    assert.deepEqual(state1, {})
-    assert.deepEqual(atom1.get(), {})
+    assert.deepEqual(state1, undefined)
+    assert.deepEqual(atom1.get(), undefined)
 
     const atom2 = new Atom()
     const state2 = atom2.init({prop: 'value'})

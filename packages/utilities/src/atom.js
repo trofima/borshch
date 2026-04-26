@@ -34,27 +34,26 @@ export class Atom {
   }
 
   constructor(initialValue, {withHistory = false} = {}) {
-    this.#initialValue = initialValue
-    this.#value = Object.freeze(initialValue)
-    this.#history.toggle(withHistory)
+    this.init(initialValue)
+    if (withHistory) this.#initHistory()
   }
 
-  init(initialValue = {}) {
+  init(initialValue) {
     if (this.#initialValue !== undefined) throw new Error('Atom.init: atom value is already initialized')
     this.#value = Object.freeze(initialValue)
-    this.#initialValue =  Object.freeze(initialValue)
+    this.#initialValue = Object.freeze(initialValue)
     return this.get()
   }
 
   reset() {
     this.#value = this.#initialValue
-    this.#history.reset()
+    if (this.#history) this.#initHistory()
     return this.get()
   }
 
   update = (applyChanges, ...changes) => {
     const currentValue = this.get()
-    if (this.#history.isEnabled()) this.#history.add([applyChanges, changes])
+    if (this.#history) this.#history.addEntry([applyChanges, changes])
     else this.#value = Object.freeze(applyChanges(this.#value, ...changes))
     const value = this.get()
     for (const subscriber of this.#subscribers) subscriber(value, currentValue)
@@ -63,11 +62,11 @@ export class Atom {
 
   undo = () => {
     this.#history.back()
-    return this.get(this.#history.getIndex())
+    return this.get(this.#history.getCurrentIndex())
   }
 
-  get = (index) => this.#history.isEnabled()
-    ? this.#applyUpdates(index ?? this.#history.getIndex())
+  get = (index) => this.#history
+    ? this.#applyUpdates(index ?? this.#history.getCurrentIndex())
     : this.#value
 
   subscribe = (subscriber) => {
@@ -81,15 +80,18 @@ export class Atom {
 
   #value
   #initialValue
-  #history = new History()
+  #history
   #subscribers = new Set()
 
+  #initHistory() {
+    this.#history = new History({updates: [[() => this.#initialValue, [undefined]]]})
+  }
 
   #applyUpdates = (index) => {
-    if (index && this.#history.hasEntryAt(index - 1)) throw new Error(`Atom.get: history entry at index ${index} does not exist`)
+    if (!this.#history.hasEntryAt(index)) throw new Error(`Atom.get: history entry at index ${index} does not exist`)
     return this.#history
-      .getEntries(0, index)
-      .reduce((acc, [applyChanges, changes]) => applyChanges(acc, ...changes), this.#initialValue)
+      .getEntries(0, index + 1)
+      .reduce((acc, [applyChanges, changes]) => applyChanges(acc, ...changes), undefined)
   }
 }
 
@@ -100,50 +102,34 @@ const assertAtom = (maybeAtom, errorDescription) => {
 
 class History {
   constructor({
-    enabled = false,
     updates = [],
-    index = -1,
+    currentIndex = 0,
   } = {}){
-    this.#enabled = enabled
     this.#updates = updates
-    this.#index = index
+    this.#currentIndex = currentIndex
   }
 
-  toggle(enabled) {
-    this.#enabled = enabled
-  }
-
-  isEnabled() {
-    return this.#enabled
-  }
-
-  hasEntryAt(index) {
-    return index in this.#updates
-  }
-
-  add(entry) {
-    this.#index ++
-    return this.#updates.push(entry)
-  }
-
-  reset() {
-    this.#index = -1
-    this.#updates = []
-  }
-
-  back() {
-    this.#index --
-  }
-
-  getIndex() {
-    return this.#index
+  getCurrentIndex() {
+    return this.#currentIndex
   }
 
   getEntries(from, to) {
     return this.#updates.slice(from, to)
   }
 
-  #enabled
+  hasEntryAt(index) {
+    return index in this.#updates
+  }
+
+  addEntry(entry) {
+    this.#updates.push(entry)
+    this.#currentIndex ++
+  }
+
+  back() {
+    this.#currentIndex --
+  }
+
   #updates
-  #index
+  #currentIndex = -1
 }
