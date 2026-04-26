@@ -65,26 +65,28 @@ export class Atom {
     : this.#value
 
   update = (applyChanges, ...changes) => {
-    const currentValue = this.get()
+    const currentValue = this.#value
+    this.#value = this.#changeValue(applyChanges, ...changes)
+    for (const subscriber of this.#subscribers) subscriber(this.#value, currentValue)
     if (this.#history) this.#history = History.addEntry(this.#history, [applyChanges, changes])
-    else this.#value = Object.freeze(applyChanges(this.#value, ...changes))
-    const value = this.get()
-    for (const subscriber of this.#subscribers) subscriber(value, currentValue)
-    return value
+    return this.#value
   }
 
   undo = () => {
     this.#assertHistoryEnabled('undo')
-    if (!History.canGoBack(this.#history)) throw new Error('Atom.undo: no more changes to undo')
+    if (!History.hasPreviousEntry(this.#history)) throw new Error('Atom.undo: no more changes to undo')
     this.#history = History.back(this.#history)
+    this.#dirty = true
     return this.get()
   }
 
   redo = () => {
     this.#assertHistoryEnabled('redo')
-    if (!History.canGoForward(this.#history)) throw new Error('Atom.redo: no more changes to redo')
+    if (!History.hasNextEntry(this.#history)) throw new Error('Atom.redo: no more changes to redo')
+    const [applyChanges, changes] = History.getNextEntry(this.#history)
     this.#history = History.forward(this.#history)
-    return this.get()
+    this.#value = this.#changeValue(applyChanges, ...changes)
+    return this.#value
   }
 
   subscribe = (subscriber) => {
@@ -99,6 +101,7 @@ export class Atom {
   #initialValue
   #value
   #history
+  #dirty = false
   #subscribers = new Set()
 
   #initialize = (initialValue) => {
@@ -111,9 +114,18 @@ export class Atom {
   }
 
   #getFromHistory = (index = History.getCursor(this.#history)) => {
-    if (!History.hasEntryAt(this.#history, index)) throw new Error(`Atom.get: history entry at index ${index} does not exist`)
-    return History.getEntries(this.#history, 0, index + 1)
+    if (!History.hasEntry(this.#history, index)) throw new Error(`Atom.get: history entry at index ${index} does not exist`)
+    if (History.isAtCursor(this.#history, index) && !this.#dirty) return this.#value
+    const value = History.getEntries(this.#history, 0, index + 1)
       .reduce((acc, [applyChanges, changes]) => applyChanges(acc, ...changes), undefined)
+    const frozenValue = Object.freeze(value)
+    this.#dirty = false
+    if (History.isAtCursor(this.#history, index)) this.#value = frozenValue
+    return frozenValue
+  }
+
+  #changeValue = (applyChanges, ...changes) => {
+    return Object.freeze(applyChanges(this.#value, ...changes))
   }
 
   #assertHistoryEnabled = (forbiddenAction) => {
@@ -130,9 +142,11 @@ const History = {
   make: ({entries = [], cursor = entries.length - 1} = {}) => ({entries, cursor}),
   getCursor: ({cursor}) => cursor,
   getEntries: ({entries}, from = 0, to) => entries.slice(from, to),
-  hasEntryAt: ({entries}, index) => index in entries,
-  canGoBack: ({cursor}) => cursor > 0,
-  canGoForward: ({cursor, entries}) => cursor < entries.length - 1,
+  getNextEntry: ({entries, cursor}) => entries.at(cursor + 1),
+  hasEntry: ({entries}, index) => index in entries,
+  hasPreviousEntry: ({cursor}) => cursor > 0,
+  hasNextEntry: ({cursor, entries}) => cursor < entries.length - 1,
+  isAtCursor: ({cursor}, index) => cursor === index,
   addEntry: ({entries, cursor, ...rest}, entry) => ({
     ...rest,
     entries: [...entries.slice(0, cursor + 1), entry],
