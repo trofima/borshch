@@ -38,7 +38,7 @@ suite('Atom', () => {
   })
 
   test('update state with history', async () => {
-    const atom = new Atom({}, {keepHistory: true})
+    const atom = new Atom({}, {withHistory: true})
 
     const state1 = atom.update(() => ({prop: 'value'}))
     const state2 = atom.update((model, updates) => ({...model, ...updates}), {prop: 'another value'})
@@ -56,8 +56,25 @@ suite('Atom', () => {
     assert.throw(() => atom.get(5), Error, 'Atom.get: history entry at index 5 does not exist')
   })
 
+  test('undo state update', async () => {
+    const atom = new Atom({}, { withHistory: true })
+
+    atom.update(() => ({ prop: 'value' }))
+    atom.update(() => ({ prop: 'anotherValue' }))
+
+    const prevState = atom.undo()
+    assert.deepEqual(prevState, { prop: 'value' })
+    assert.deepEqual(atom.get(), { prop: 'value' })
+
+    const prevState1 = atom.undo()
+    assert.deepEqual(prevState1, {})
+    assert.deepEqual(atom.get(), {})
+  })
+  
+  
+
   test('subscription', () => {
-    const atom = new Atom({}, {keepHistory: true})
+    const atom = new Atom({}, {withHistory: true})
     const subscriber1 = new FunctionSpy()
     const subscriber2 = new FunctionSpy()
 
@@ -81,7 +98,7 @@ suite('Atom', () => {
   })
 
   test('forbids state mutation', () => {
-    const atom = new Atom({}, {keepHistory: true})
+    const atom = new Atom({}, {withHistory: true})
 
     assert.throws(() => atom.update((model) => (model.prop = 'value')), TypeError)
   })
@@ -127,7 +144,7 @@ suite('Atom', () => {
     assert.deepEqual(state2, {prop: 'another initial value'})
     assert.deepEqual(atom2.get(), {prop: 'another initial value'})
 
-    const atom3 = new Atom(undefined, {keepHistory: true})
+    const atom3 = new Atom(undefined, {withHistory: true})
     atom3.init({prop: 'initial value'})
     atom3.update(() => ({prop: 'value'}))
     const state3 = atom3.reset()
@@ -137,7 +154,7 @@ suite('Atom', () => {
   })
 
   test('static interface', async () => {
-    const atom = Atom.of(undefined, {keepHistory: true})
+    const atom = Atom.of(undefined, {withHistory: true})
 
     const initResult = Atom.init(atom, {prop: 'initial value'})
     assert.throw(() => Atom.init([]), 'Atom.init can init only atoms. Got \'Array\' instead')
