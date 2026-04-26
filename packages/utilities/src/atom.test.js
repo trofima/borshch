@@ -248,7 +248,7 @@ suite('Atom', () => {
   })
 
   suite('static interface', () => {
-    test('static interface', async () => {
+    test('static interface usage', async () => {
       const atom = Atom.of(undefined, {withHistory: true})
 
       const initResult = Atom.init(atom, {prop: 'initial value'})
@@ -261,8 +261,19 @@ suite('Atom', () => {
       assert.deepEqual(updateResult, {prop: 'value'})
       assert.deepEqual(atom.get(), {prop: 'value'})
 
+      const undoResult = Atom.undo(atom)
+      assert.throw(() => Atom.undo(1), 'Atom.undo can undo only atoms. Got \'Number\' instead')
+      assert.deepEqual(undoResult, {prop: 'initial value'})
+      assert.deepEqual(atom.get(), {prop: 'initial value'})
+
+      const redoResult = Atom.redo(atom)
+      assert.throw(() => Atom.redo(1), 'Atom.redo can redo only atoms. Got \'Number\' instead')
+      assert.deepEqual(redoResult, {prop: 'value'})
+      assert.deepEqual(atom.get(), {prop: 'value'})
+
       assert.throw(() => Atom.get(''), 'Atom.get can get value only from atoms. Got \'String\' instead')
       assert.deepEqual(Atom.get(atom), {prop: 'value'})
+      assert.deepEqual(Atom.get(atom, 0), {prop: 'initial value'})
 
       const subscriber1 = new FunctionSpy()
       const subscriber2 = new FunctionSpy()

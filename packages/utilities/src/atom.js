@@ -13,14 +13,24 @@ export class Atom {
     return atom.reset()
   }
 
-  static update(atom, update, ...updates) {
-    assertAtom(atom, 'Atom.update can update only atoms')
-    return atom.update(update, ...updates)
-  }
-
   static get(atom, index) {
     assertAtom(atom, 'Atom.get can get value only from atoms')
     return atom.get(index)
+  }
+
+  static undo(atom) {
+    assertAtom(atom, 'Atom.undo can undo only atoms')
+    return atom.undo()
+  }
+
+  static redo(atom) {
+    assertAtom(atom, 'Atom.redo can redo only atoms')
+    return atom.redo()
+  }
+
+  static update(atom, update, ...updates) {
+    assertAtom(atom, 'Atom.update can update only atoms')
+    return atom.update(update, ...updates)
   }
 
   static subscribe(atom, subscriber) {
