@@ -38,18 +38,22 @@ export class Atom {
     if (withHistory) this.#initHistory()
   }
 
-  init(initialValue) {
+  init = (initialValue) => {
     if (this.#initialValue !== undefined) throw new Error('Atom.init: atom value is already initialized')
     this.#value = Object.freeze(initialValue)
     this.#initialValue = Object.freeze(initialValue)
     return this.get()
   }
 
-  reset() {
+  reset = () => {
     this.#value = this.#initialValue
     if (this.#history) this.#initHistory()
     return this.get()
   }
+
+  get = (index) => this.#history
+    ? this.#getFromHistory(index)
+    : this.#value
 
   update = (applyChanges, ...changes) => {
     const currentValue = this.get()
@@ -61,13 +65,18 @@ export class Atom {
   }
 
   undo = () => {
+    this.#assertHistoryEnabled('undo')
+    if (!this.#history.canGoBack()) throw new Error('Atom.undo: no more changes to undo')
     this.#history.back()
-    return this.get(this.#history.getCurrentIndex())
+    return this.get()
   }
 
-  get = (index) => this.#history
-    ? this.#getFromHistory(index)
-    : this.#value
+  redo = () => {
+    this.#assertHistoryEnabled('redo')
+    if (!this.#history.canGoForward()) throw new Error('Atom.redo: no more changes to redo')
+    this.#history.forward()
+    return this.get()
+  }
 
   subscribe = (subscriber) => {
     this.#subscribers.add(subscriber)
@@ -78,8 +87,8 @@ export class Atom {
     this.#subscribers.delete(subscriber)
   }
 
-  #value
   #initialValue
+  #value
   #history
   #subscribers = new Set()
 
@@ -87,11 +96,15 @@ export class Atom {
     this.#history = new History({updates: [[() => this.#initialValue, [undefined]]]})
   }
 
-  #getFromHistory = (index = this.#history.getCurrentIndex()) => {
+  #getFromHistory = (index = this.#history.getCursor()) => {
     if (!this.#history.hasEntryAt(index)) throw new Error(`Atom.get: history entry at index ${index} does not exist`)
     return this.#history
       .getEntries(0, index + 1)
       .reduce((acc, [applyChanges, changes]) => applyChanges(acc, ...changes), undefined)
+  }
+
+  #assertHistoryEnabled(forbiddenAction) {
+    if (!this.#history) throw new Error(`Atom.${forbiddenAction}: history is not enabled`)
   }
 }
 
@@ -103,17 +116,17 @@ const assertAtom = (maybeAtom, errorDescription) => {
 class History {
   constructor({
     updates = [],
-    currentIndex = 0,
+    cursor = updates.length - 1,
   } = {}){
     this.#updates = updates
-    this.#currentIndex = currentIndex
+    this.#cursor = cursor
   }
 
-  getCurrentIndex() {
-    return this.#currentIndex
+  getCursor() {
+    return this.#cursor
   }
 
-  getEntries(from, to) {
+  getEntries(from = 0, to) {
     return this.#updates.slice(from, to)
   }
 
@@ -121,15 +134,27 @@ class History {
     return index in this.#updates
   }
 
+  canGoBack() {
+    return this.#cursor > 0
+  }
+
+  canGoForward() {
+    return this.#cursor < this.#updates.length - 1
+  }
+
   addEntry(entry) {
-    this.#updates.push(entry)
-    this.#currentIndex ++
+    this.#updates = [...this.#updates.slice(0, this.#cursor + 1), entry]
+    this.#cursor ++
   }
 
   back() {
-    this.#currentIndex --
+    this.#cursor --
+  }
+
+  forward() {
+    this.#cursor ++
   }
 
   #updates
-  #currentIndex = 0
+  #cursor = -1
 }

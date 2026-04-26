@@ -170,6 +170,81 @@ suite('Atom', () => {
       assert.deepEqual(atom.get(1), 'value 1')
       assert.deepEqual(atom.get(2), 'value 2')
     })
+
+    test('update resets further history', () => {
+      const atom = new Atom('initial value', { withHistory: true })
+      atom.update(() => 'value 1')
+      atom.undo()
+      atom.update(() => 'history truncating value')
+
+      assert.deepEqual(atom.get(), 'history truncating value')
+
+      atom.undo()
+
+      assert.deepEqual(atom.get(1), 'history truncating value')
+      assert.throws(() => atom.get(2), Error, 'Atom.get: history entry at index 2 does not exist')
+    })
+
+    test('throw error on undo without history', async () => {
+      const atom = new Atom('initial value')
+
+      assert.throws(() => atom.undo(), Error, 'Atom.undo: history is not enabled')
+    })
+
+    test('throw error, when there is no more changes to undo', async () => {
+      const atom = new Atom('initial value', { withHistory: true })
+
+      assert.throws(() => atom.undo(), Error, 'Atom.undo: no more changes to undo')
+
+      atom.update(() => 'value 1')
+      atom.undo()
+
+      assert.throws(() => atom.undo(), Error, 'Atom.undo: no more changes to undo')
+    })
+
+    test('redo state update', async () => {
+      const atom = new Atom('initial value', { withHistory: true })
+      atom.update(() => 'value 1')
+      atom.update(() => 'value 2')
+      atom.undo()
+      atom.undo()
+
+      const redoneState1 = atom.redo()
+      assert.deepEqual(redoneState1, 'value 1')
+      assert.deepEqual(atom.get(), 'value 1')
+
+      const redoneState2 = atom.redo()
+      assert.deepEqual(redoneState2, 'value 2')
+      assert.deepEqual(atom.get(), 'value 2')
+    })
+
+    test('throw error on redo without history', async () => {
+      const atom = new Atom('initial value')
+
+      assert.throws(() => atom.redo(), Error, 'Atom.redo: history is not enabled')
+    })
+
+    test('throw error, when there is no more changes to redo', async () => {
+      const atom = new Atom('initial value', { withHistory: true })
+
+      assert.throws(() => atom.redo(), Error, 'Atom.redo: no more changes to redo')
+
+      atom.update(() => 'value 1')
+      atom.undo()
+      atom.redo()
+
+      assert.throws(() => atom.redo(), Error, 'Atom.redo: no more changes to redo')
+    })
+
+    test('resets redo history on new update after undo', async () => {
+      const atom = new Atom('initial value', { withHistory: true })
+      atom.update(() => 'value 1')
+      atom.undo()
+
+      atom.update(() => 'history truncating value')
+
+      assert.throws(() => atom.redo(), Error, 'Atom.redo: no more changes to redo')
+    })
   })
 
   suite('static interface', () => {
