@@ -64,7 +64,6 @@
     "typescript": "^6.0.2"
   },
   "dependencies": {
-    "object-hash": "^3.0.0",
-    "rambda": "^9.4.1"
+    "object-hash": "^3.0.0"
   }
 }
