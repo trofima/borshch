@@ -44,14 +44,13 @@ export class Atom {
   }
 
   constructor(initialValue, {withHistory = false} = {}) {
-    this.init(initialValue)
+    this.#initialize(initialValue)
     if (withHistory) this.#initHistory()
   }
 
   init = (initialValue) => {
     if (this.#initialValue !== undefined) throw new Error('Atom.init: atom value is already initialized')
-    this.#value = Object.freeze(initialValue)
-    this.#initialValue = Object.freeze(initialValue)
+    this.#initialize(initialValue)
     return this.get()
   }
 
@@ -102,7 +101,12 @@ export class Atom {
   #history
   #subscribers = new Set()
 
-  #initHistory() {
+  #initialize = (initialValue) => {
+    this.#value = Object.freeze(initialValue)
+    this.#initialValue = Object.freeze(initialValue)
+  }
+
+  #initHistory = () => {
     this.#history = new History({updates: [[() => this.#initialValue, [undefined]]]})
   }
 
@@ -113,7 +117,7 @@ export class Atom {
       .reduce((acc, [applyChanges, changes]) => applyChanges(acc, ...changes), undefined)
   }
 
-  #assertHistoryEnabled(forbiddenAction) {
+  #assertHistoryEnabled = (forbiddenAction) => {
     if (!this.#history) throw new Error(`Atom.${forbiddenAction}: history is not enabled`)
   }
 }
@@ -166,5 +170,5 @@ class History {
   }
 
   #updates
-  #cursor = -1
+  #cursor
 }
