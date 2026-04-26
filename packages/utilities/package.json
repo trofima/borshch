@@ -9,9 +9,16 @@
     "access": "public"
   },
   "exports": {
-    "import": "./dist/es/index.js",
-    "require": "./dist/cjs/index.js"
+    "import": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/es/index.js"
+    },
+    "require": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/cjs/index.js"
+    }
   },
+  "types": "./dist/types/index.d.ts",
   "files": [
     "dist",
     "README.md"
@@ -32,7 +39,7 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "prebuild": "rm -rf dist/*",
-    "build": "rollup -c",
+    "build": "rollup -c && tsc -p tsconfig.json",
     "test": "mocha -u tdd --timeout 10000 --colors './src/**/*.test.js'",
     "lint": "eslint --fix",
     "lint-staged": "lint-staged"
@@ -53,7 +60,8 @@
     "pre-commit": "^1.2.2",
     "pre-push": "^0.1.4",
     "rollup": "^4.29.1",
-    "terser": "^5.37.0"
+    "terser": "^5.37.0",
+    "typescript": "^6.0.2"
   },
   "dependencies": {
     "object-hash": "^3.0.0",
