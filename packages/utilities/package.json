@@ -40,7 +40,7 @@
     "prepublishOnly": "npm run build",
     "prebuild": "rm -rf dist/*",
     "build": "rollup -c && tsc -p tsconfig.json",
-    "test": "mocha -u tdd --timeout 10000 --colors './src/**/*.test.js'",
+    "test": "mocha",
     "lint": "eslint --fix",
     "lint-staged": "lint-staged"
   },
