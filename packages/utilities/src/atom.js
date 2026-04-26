@@ -66,7 +66,7 @@ export class Atom {
   }
 
   get = (index) => this.#history
-    ? this.#applyUpdates(index ?? this.#history.getCurrentIndex())
+    ? this.#getFromHistory(index)
     : this.#value
 
   subscribe = (subscriber) => {
@@ -87,7 +87,7 @@ export class Atom {
     this.#history = new History({updates: [[() => this.#initialValue, [undefined]]]})
   }
 
-  #applyUpdates = (index) => {
+  #getFromHistory = (index = this.#history.getCurrentIndex()) => {
     if (!this.#history.hasEntryAt(index)) throw new Error(`Atom.get: history entry at index ${index} does not exist`)
     return this.#history
       .getEntries(0, index + 1)
@@ -131,5 +131,5 @@ class History {
   }
 
   #updates
-  #currentIndex = -1
+  #currentIndex = 0
 }

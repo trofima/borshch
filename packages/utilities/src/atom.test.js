@@ -3,181 +3,204 @@ import {Atom} from './atom.js'
 import {FunctionSpy} from './spy.js'
 
 suite('Atom', () => {
-  test('update state', async () => {
-    const atom = new Atom()
+  suite('initialization', () => {
+    test('initialize state', async () => {
+      const atom1 = new Atom()
+      const state1 = atom1.init()
+      assert.deepEqual(state1, undefined)
+      assert.deepEqual(atom1.get(), undefined)
 
-    assert.deepEqual(atom.get(), undefined)
+      const atom2 = new Atom()
+      const state2 = atom2.init('initial value')
+      assert.deepEqual(state2, 'initial value')
+      assert.deepEqual(atom2.get(), 'initial value')
 
-    const state1 = atom.update(() => ({prop: 'value'}))
-    assert.deepEqual(state1, {prop: 'value'})
-    assert.deepEqual(atom.get(), {prop: 'value'})
+      const atom3 = new Atom()
+      const state3 = atom3.init({prop: 'initial value'})
+      assert.deepEqual(state3, {prop: 'initial value'})
+      assert.deepEqual(atom3.get(), {prop: 'initial value'})
+    })
 
-    const state2 = atom.update((model) => ({...model, prop: 'another value', anotherProp: 'value'}))
-    assert.deepEqual(state2, {prop: 'another value', anotherProp: 'value'})
-    assert.deepEqual(atom.get(), {prop: 'another value', anotherProp: 'value'})
+    test('forbids reinitializing state', () => {
+      const atom1 = new Atom()
+      atom1.init('initial value')
+      assert.throws(() => atom1.init(), Error, 'Atom.init: atom value is already initialized')
+
+      const atom2 = new Atom('initial value')
+      assert.throws(() => atom2.init(), Error, 'Atom.init: atom value is already initialized')
+    })
   })
 
-  test('update state with updater and updates', () => {
-    const atom = new Atom({prop: 'value', anotherProp: 'another value'})
-    const merge = (model, updates) => ({...model, ...updates})
+  suite('updating state', () => {
+    test('update state', async () => {
+      const atom = new Atom()
 
-    const state = atom.update(merge, {anotherProp: 'updated another value'})
+      const state1 = atom.update(() => 1)
+      assert.deepEqual(state1, 1)
+      assert.deepEqual(atom.get(), 1)
 
-    assert.deepEqual(state, {prop: 'value', anotherProp: 'updated another value'})
-    assert.deepEqual(atom.get(), {prop: 'value', anotherProp: 'updated another value'})
+      const state2 = atom.update((value) => value + 1)
+      assert.deepEqual(state2, 2)
+      assert.deepEqual(atom.get(), 2)
+    })
+
+    test('update state with updater and updates', () => {
+      const atom = new Atom({prop: 'value', anotherProp: 'another value'})
+      const merge = (model, updates) => ({...model, ...updates})
+
+      const state = atom.update(merge, {anotherProp: 'updated another value'})
+
+      assert.deepEqual(state, {prop: 'value', anotherProp: 'updated another value'})
+      assert.deepEqual(atom.get(), {prop: 'value', anotherProp: 'updated another value'})
+    })
+
+    test('update state with updater and multiple updates', () => {
+      const atom = new Atom({prop: 'value', anotherProp: 'another value'})
+      const assign = (model, prop, value) => ({...model, [prop]: value})
+
+      const state = atom.update(assign, 'prop', 'updated value')
+
+      assert.deepEqual(state, {prop: 'updated value', anotherProp: 'another value'})
+      assert.deepEqual(atom.get(), {prop: 'updated value', anotherProp: 'another value'})
+    })
+
+    test('forbids state mutation', () => {
+      const atom = new Atom({}, {withHistory: true})
+
+      assert.throws(() => atom.update((model) => (model.prop = 'value')), TypeError)
+    })
   })
 
-  test('update state with updater and multiple updates', () => {
-    const atom = new Atom({prop: 'value', anotherProp: 'another value'})
-    const assign = (model, prop, value) => ({...model, [prop]: value})
+  suite('resetting state', () => {
+    test('reset state to initial value', async () => {
+      const atom1 = new Atom()
+      atom1.init('initial value')
+      atom1.update(() => 'updated value')
+      const state1 = atom1.reset()
+      assert.deepEqual(state1, 'initial value')
+      assert.deepEqual(atom1.get(), 'initial value')
 
-    const state = atom.update(assign, 'prop', 'updated value')
-
-    assert.deepEqual(state, {prop: 'updated value', anotherProp: 'another value'})
-    assert.deepEqual(atom.get(), {prop: 'updated value', anotherProp: 'another value'})
+      const atom2 = new Atom()
+      atom2.init(1)
+      atom2.update(() => 2)
+      const state2 = atom2.reset()
+      assert.deepEqual(state2, 1)
+      assert.deepEqual(atom2.get(), 1)
+    })
   })
 
-  test('update state with history', async () => {
-    const atom = new Atom({}, {withHistory: true})
+  suite('subscription', () => {
+    test('subscription', () => {
+      const atom = new Atom('initial value', {withHistory: true})
+      const subscriber1 = new FunctionSpy()
+      const subscriber2 = new FunctionSpy()
 
-    const state1 = atom.update(() => ({prop: 'value'}))
-    const state2 = atom.update((model, updates) => ({...model, ...updates}), {prop: 'another value'})
-    const state3 = atom.update((_model, updates) => ({...updates}), {anotherProp: 'value'})
+      atom.subscribe(subscriber1)
+      const unsubscribe2 = atom.subscribe(subscriber2)
 
-    assert.deepEqual(atom.get(0), {})
-    assert.deepEqual(atom.get(1), {prop: 'value'})
-    assert.deepEqual(state1, {prop: 'value'})
-    assert.deepEqual(atom.get(2), {prop: 'another value'})
-    assert.deepEqual(state2, {prop: 'another value'})
-    assert.deepEqual(atom.get(3), {anotherProp: 'value'})
-    assert.deepEqual(state3, {anotherProp: 'value'})
-    assert.deepEqual(atom.get(), {anotherProp: 'value'})
-    assert.throw(() => atom.get(4), Error, 'Atom.get: history entry at index 4 does not exist')
-    assert.throw(() => atom.get(5), Error, 'Atom.get: history entry at index 5 does not exist')
+      atom.update(() => 'updated value')
+      assert.deepEqual(subscriber1.lastCall, ['updated value', 'initial value'])
+      assert.deepEqual(subscriber2.lastCall, ['updated value', 'initial value'])
+
+      atom.update(() => 'another updated value')
+      assert.deepEqual(subscriber1.lastCall, ['another updated value', 'updated value'])
+      assert.deepEqual(subscriber2.lastCall, ['another updated value', 'updated value'])
+
+      atom.unsubscribe(subscriber1)
+      unsubscribe2()
+
+      atom.update(() => 'irrelevant value')
+      assert.equal(subscriber1.callCount, 2)
+      assert.equal(subscriber2.callCount, 2)
+    })
   })
 
-  test('undo state update', async () => {
-    const atom = new Atom({prop: 'initialValue'}, { withHistory: true })
+  suite('history', () => {
+    test('update state with history', async () => {
+      const atom = new Atom('initial value', {withHistory: true})
 
-    atom.update(() => ({ prop: 'value' }))
-    atom.update(() => ({ prop: 'anotherValue' }))
+      const state1 = atom.update(() => 'value')
+      const state2 = atom.update(() => 'updated value')
 
-    const prevState = atom.undo()
-    assert.deepEqual(prevState, { prop: 'value' })
-    assert.deepEqual(atom.get(), { prop: 'value' })
+      assert.deepEqual(atom.get(0), 'initial value')
 
-    const prevState1 = atom.undo()
-    assert.deepEqual(prevState1, {prop: 'initialValue'})
-    assert.deepEqual(atom.get(), {prop: 'initialValue'})
+      assert.deepEqual(atom.get(1), 'value')
+      assert.deepEqual(state1, 'value')
+
+      assert.deepEqual(atom.get(2), 'updated value')
+      assert.deepEqual(state2, 'updated value')
+      assert.deepEqual(atom.get(), 'updated value')
+
+      assert.throw(() => atom.get(4), Error, 'Atom.get: history entry at index 4 does not exist')
+      assert.throw(() => atom.get(5), Error, 'Atom.get: history entry at index 5 does not exist')
+    })
+
+    test('clear history on atom reset', async () => {
+      const atom = new Atom(undefined, {withHistory: true})
+      atom.init('initial value')
+      atom.update(() => 'value')
+
+      atom.reset()
+
+      assert.throw(() => atom.get(1), Error, 'Atom.get: history entry at index 1 does not exist')
+    })
+
+    test('undo state update', async () => {
+      const atom = new Atom('initial value', { withHistory: true })
+      atom.update(() => 'value 1')
+      atom.update(() => 'value 2')
+
+      const prevState1 = atom.undo()
+      assert.deepEqual(prevState1, 'value 1')
+      assert.deepEqual(atom.get(), 'value 1')
+
+      const prevState2 = atom.undo()
+      assert.deepEqual(prevState2, 'initial value')
+      assert.deepEqual(atom.get(), 'initial value')
+    })
+
+    test('preserve history after undo', async () => {
+      const atom = new Atom('initial value', { withHistory: true })
+      atom.update(() => 'value 1')
+      atom.update(() => 'value 2')
+
+      atom.undo()
+      atom.undo()
+
+      assert.deepEqual(atom.get(1), 'value 1')
+      assert.deepEqual(atom.get(2), 'value 2')
+    })
   })
 
-  test('subscription', () => {
-    const atom = new Atom({}, {withHistory: true})
-    const subscriber1 = new FunctionSpy()
-    const subscriber2 = new FunctionSpy()
+  suite('static interface', () => {
+    test('static interface', async () => {
+      const atom = Atom.of(undefined, {withHistory: true})
 
-    atom.subscribe(subscriber1)
-    const unsubscribe2 = atom.subscribe(subscriber2)
+      const initResult = Atom.init(atom, {prop: 'initial value'})
+      assert.throw(() => Atom.init([]), 'Atom.init can init only atoms. Got \'Array\' instead')
+      assert.deepEqual(initResult, {prop: 'initial value'})
+      assert.deepEqual(atom.get(), {prop: 'initial value'})
 
-    atom.update(() => ({prop: 'value'}))
-    assert.deepEqual(subscriber1.lastCall, [{prop: 'value'}, {}])
-    assert.deepEqual(subscriber2.lastCall, [{prop: 'value'}, {}])
+      const updateResult = Atom.update(atom, () => ({prop: 'value'}))
+      assert.throw(() => Atom.update(1), 'Atom.update can update only atoms. Got \'Number\' instead')
+      assert.deepEqual(updateResult, {prop: 'value'})
+      assert.deepEqual(atom.get(), {prop: 'value'})
 
-    atom.update(() => ({anotherProp: 'another value'}))
-    assert.deepEqual(subscriber1.lastCall, [{anotherProp: 'another value'}, {prop: 'value'}])
-    assert.deepEqual(subscriber2.lastCall, [{anotherProp: 'another value'}, {prop: 'value'}])
+      assert.throw(() => Atom.get(''), 'Atom.get can get value only from atoms. Got \'String\' instead')
+      assert.deepEqual(Atom.get(atom), {prop: 'value'})
 
-    atom.unsubscribe(subscriber1)
-    unsubscribe2()
-
-    atom.update(() => ({irrelevant: 'irrelevant'}))
-    assert.equal(subscriber1.callCount, 2)
-    assert.equal(subscriber2.callCount, 2)
-  })
-
-  test('forbids state mutation', () => {
-    const atom = new Atom({}, {withHistory: true})
-
-    assert.throws(() => atom.update((model) => (model.prop = 'value')), TypeError)
-  })
-
-  test('initialize state', async () => {
-    const atom1 = new Atom()
-    const state1 = atom1.init()
-    assert.deepEqual(state1, undefined)
-    assert.deepEqual(atom1.get(), undefined)
-
-    const atom2 = new Atom()
-    const state2 = atom2.init({prop: 'value'})
-    assert.deepEqual(state2, {prop: 'value'})
-    assert.deepEqual(atom2.get(), {prop: 'value'})
-
-    const atom3 = new Atom()
-    const state3 = atom3.init({prop: 'value', anotherProp: 'another value'})
-    assert.deepEqual(state3, {prop: 'value', anotherProp: 'another value'})
-    assert.deepEqual(atom3.get(), {prop: 'value', anotherProp: 'another value'})
-  })
-
-  test('forbids reinitializing state', () => {
-    const atom1 = new Atom()
-    atom1.init({prop: 'value'})
-    assert.throws(() => atom1.init(), Error, 'Atom.init: atom value is already initialized')
-
-    const atom2 = new Atom({prop: 'value'})
-    assert.throws(() => atom2.init(), Error, 'Atom.init: atom value is already initialized')
-  })
-
-  test('reset state to initial value', async () => {
-    const atom1 = new Atom()
-    atom1.init({prop: 'initial value'})
-    atom1.update(() => ({prop: 'value'}))
-    const state1 = atom1.reset()
-    assert.deepEqual(state1, {prop: 'initial value'})
-    assert.deepEqual(atom1.get(), {prop: 'initial value'})
-
-    const atom2 = new Atom()
-    atom2.init({prop: 'another initial value'})
-    atom2.update(() => ({prop: 'another value'}))
-    const state2 = atom2.reset()
-    assert.deepEqual(state2, {prop: 'another initial value'})
-    assert.deepEqual(atom2.get(), {prop: 'another initial value'})
-
-    const atom3 = new Atom(undefined, {withHistory: true})
-    atom3.init({prop: 'initial value'})
-    atom3.update(() => ({prop: 'value'}))
-    const state3 = atom3.reset()
-    assert.deepEqual(state3, {prop: 'initial value'})
-    assert.deepEqual(atom3.get(), {prop: 'initial value'})
-    assert.throw(() => atom3.get(1), Error, 'Atom.get: history entry at index 1 does not exist')
-  })
-
-  test('static interface', async () => {
-    const atom = Atom.of(undefined, {withHistory: true})
-
-    const initResult = Atom.init(atom, {prop: 'initial value'})
-    assert.throw(() => Atom.init([]), 'Atom.init can init only atoms. Got \'Array\' instead')
-    assert.deepEqual(initResult, {prop: 'initial value'})
-    assert.deepEqual(atom.get(), {prop: 'initial value'})
-
-    const updateResult = Atom.update(atom, () => ({prop: 'value'}))
-    assert.throw(() => Atom.update(1), 'Atom.update can update only atoms. Got \'Number\' instead')
-    assert.deepEqual(updateResult, {prop: 'value'})
-    assert.deepEqual(atom.get(), {prop: 'value'})
-
-    assert.throw(() => Atom.get(''), 'Atom.get can get value only from atoms. Got \'String\' instead')
-    assert.deepEqual(Atom.get(atom), {prop: 'value'})
-
-    const subscriber1 = new FunctionSpy()
-    const subscriber2 = new FunctionSpy()
-    const unsubscribe1 = Atom.subscribe(atom, subscriber1)
-    Atom.subscribe(atom, subscriber2)
-    atom.update(() => ({prop: 'another value'}))
-    unsubscribe1()
-    Atom.unsubscribe(atom, subscriber2)
-    atom.update(() => ({irrelevant: 'irrelevant'}))
-    assert.throw(() => Atom.subscribe({}), 'subscribe can subscribe only to atoms. Got \'Object\' instead')
-    assert.throw(() => Atom.unsubscribe({}), 'Atom.unsubscribe can unsubscribe only from atoms. Got \'Object\' instead')
-    assert.deepEqual(subscriber1.lastCall, [{prop: 'another value'}, {prop: 'value'}])
-    assert.deepEqual(subscriber2.lastCall, [{prop: 'another value'}, {prop: 'value'}])
+      const subscriber1 = new FunctionSpy()
+      const subscriber2 = new FunctionSpy()
+      const unsubscribe1 = Atom.subscribe(atom, subscriber1)
+      Atom.subscribe(atom, subscriber2)
+      atom.update(() => ({prop: 'another value'}))
+      unsubscribe1()
+      Atom.unsubscribe(atom, subscriber2)
+      atom.update(() => ({irrelevant: 'irrelevant'}))
+      assert.throw(() => Atom.subscribe({}), 'subscribe can subscribe only to atoms. Got \'Object\' instead')
+      assert.throw(() => Atom.unsubscribe({}), 'Atom.unsubscribe can unsubscribe only from atoms. Got \'Object\' instead')
+      assert.deepEqual(subscriber1.lastCall, [{prop: 'another value'}, {prop: 'value'}])
+      assert.deepEqual(subscriber2.lastCall, [{prop: 'another value'}, {prop: 'value'}])
+    })
   })
 })
