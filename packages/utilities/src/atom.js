@@ -45,7 +45,7 @@ export class Atom {
 
   constructor(initialValue, {withHistory = false} = {}) {
     this.#initialize(initialValue)
-    if (withHistory) this.#initHistory()
+    if (withHistory) this.#initializeHistory()
   }
 
   init = (initialValue) => {
@@ -56,7 +56,7 @@ export class Atom {
 
   reset = () => {
     this.#value = this.#initialValue
-    if (this.#history) this.#initHistory()
+    if (this.#history) this.#initializeHistory()
     return this.get()
   }
 
@@ -66,7 +66,7 @@ export class Atom {
 
   update = (applyChanges, ...changes) => {
     const currentValue = this.get()
-    if (this.#history) this.#history.addEntry([applyChanges, changes])
+    if (this.#history) this.#history = History.addEntry(this.#history, [applyChanges, changes])
     else this.#value = Object.freeze(applyChanges(this.#value, ...changes))
     const value = this.get()
     for (const subscriber of this.#subscribers) subscriber(value, currentValue)
@@ -75,15 +75,15 @@ export class Atom {
 
   undo = () => {
     this.#assertHistoryEnabled('undo')
-    if (!this.#history.canGoBack()) throw new Error('Atom.undo: no more changes to undo')
-    this.#history.back()
+    if (!History.canGoBack(this.#history)) throw new Error('Atom.undo: no more changes to undo')
+    this.#history = History.back(this.#history)
     return this.get()
   }
 
   redo = () => {
     this.#assertHistoryEnabled('redo')
-    if (!this.#history.canGoForward()) throw new Error('Atom.redo: no more changes to redo')
-    this.#history.forward()
+    if (!History.canGoForward(this.#history)) throw new Error('Atom.redo: no more changes to redo')
+    this.#history = History.forward(this.#history)
     return this.get()
   }
 
@@ -106,14 +106,13 @@ export class Atom {
     this.#initialValue = Object.freeze(initialValue)
   }
 
-  #initHistory = () => {
-    this.#history = new History({updates: [[() => this.#initialValue, [undefined]]]})
+  #initializeHistory = () => {
+    this.#history = History.make({entries: [[() => this.#initialValue, [undefined]]]})
   }
 
-  #getFromHistory = (index = this.#history.getCursor()) => {
-    if (!this.#history.hasEntryAt(index)) throw new Error(`Atom.get: history entry at index ${index} does not exist`)
-    return this.#history
-      .getEntries(0, index + 1)
+  #getFromHistory = (index = History.getCursor(this.#history)) => {
+    if (!History.hasEntryAt(this.#history, index)) throw new Error(`Atom.get: history entry at index ${index} does not exist`)
+    return History.getEntries(this.#history, 0, index + 1)
       .reduce((acc, [applyChanges, changes]) => applyChanges(acc, ...changes), undefined)
   }
 
@@ -127,48 +126,18 @@ const assertAtom = (maybeAtom, errorDescription) => {
     throw new Error(`${errorDescription}. Got '${maybeAtom.constructor.name}' instead`)
 }
 
-class History {
-  constructor({
-    updates = [],
-    cursor = updates.length - 1,
-  } = {}){
-    this.#updates = updates
-    this.#cursor = cursor
-  }
-
-  getCursor() {
-    return this.#cursor
-  }
-
-  getEntries(from = 0, to) {
-    return this.#updates.slice(from, to)
-  }
-
-  hasEntryAt(index) {
-    return index in this.#updates
-  }
-
-  canGoBack() {
-    return this.#cursor > 0
-  }
-
-  canGoForward() {
-    return this.#cursor < this.#updates.length - 1
-  }
-
-  addEntry(entry) {
-    this.#updates = [...this.#updates.slice(0, this.#cursor + 1), entry]
-    this.#cursor ++
-  }
-
-  back() {
-    this.#cursor --
-  }
-
-  forward() {
-    this.#cursor ++
-  }
-
-  #updates
-  #cursor
+const History = {
+  make: ({entries = [], cursor = entries.length - 1} = {}) => ({entries, cursor}),
+  getCursor: ({cursor}) => cursor,
+  getEntries: ({entries}, from = 0, to) => entries.slice(from, to),
+  hasEntryAt: ({entries}, index) => index in entries,
+  canGoBack: ({cursor}) => cursor > 0,
+  canGoForward: ({cursor, entries}) => cursor < entries.length - 1,
+  addEntry: ({entries, cursor, ...rest}, entry) => ({
+    ...rest,
+    entries: [...entries.slice(0, cursor + 1), entry],
+    cursor: cursor + 1,
+  }),
+  back: ({cursor, ...rest}) => ({...rest, cursor: cursor - 1}),
+  forward: ({cursor, ...rest}) => ({...rest, cursor: cursor + 1}),
 }
