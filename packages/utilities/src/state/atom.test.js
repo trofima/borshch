@@ -1,6 +1,6 @@
 import {assert} from 'chai'
-import {Atom} from '../atom.js'
-import {FunctionSpy} from './spy.js'
+import {Atom} from './atom.js'
+import {FunctionSpy} from '../test/spy.js'
 
 suite('Atom', () => {
   suite('initialization', () => {
