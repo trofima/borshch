@@ -90,7 +90,7 @@ suite('Atom', () => {
   })
 
   suite('subscription', () => {
-    test('subscription', () => {
+    test('value update subscription', () => {
       const atom = new Atom('initial value', {withHistory: true})
       const subscriber1 = new FunctionSpy()
       const subscriber2 = new FunctionSpy()
@@ -112,6 +112,20 @@ suite('Atom', () => {
       atom.update(() => 'irrelevant value')
       assert.equal(subscriber1.callCount, 2)
       assert.equal(subscriber2.callCount, 2)
+    })
+
+    test('undo/redo subscription', () => {
+      const atom = new Atom('initial value', {withHistory: true})
+      const subscriber = new FunctionSpy()
+      atom.update(() => 'updated value')
+
+      atom.subscribe(subscriber)
+
+      atom.undo()
+      assert.deepEqual(subscriber.lastCall, ['initial value', 'updated value'])
+
+      atom.redo()
+      assert.deepEqual(subscriber.lastCall, ['updated value', 'initial value'])
     })
   })
 

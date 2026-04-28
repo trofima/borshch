@@ -65,31 +65,27 @@ export class Atom {
     : this.#value
 
   update = (applyChanges, ...changes) => {
-    const currentValue = this.#value
-    const nextValue = this.#changeValue(currentValue, applyChanges, changes)
     if (this.#history) this.#history = History.addEntry(this.#history, [applyChanges, changes])
-    for (const subscriber of this.#subscribers) subscriber(nextValue, currentValue)
-    this.#value = nextValue
+    const nextValue = this.#transitionToNext(applyChanges, changes)
     return nextValue
   }
 
-  // TODO: notify subscribers about undo/redo changes
   undo = () => {
     this.#assertHistoryEnabled('undo')
     if (!History.hasPreviousEntry(this.#history)) throw new Error('Atom.undo: no more changes to undo')
     this.#history = History.back(this.#history)
     const historyCursor = History.getCursor(this.#history)
-    this.#value = this.#replayHistory(historyCursor)
-    return this.#value
+    const nextValue = this.#transition(() => this.#replayHistory(historyCursor))
+    return nextValue
   }
 
   redo = () => {
     this.#assertHistoryEnabled('redo')
     if (!History.hasNextEntry(this.#history)) throw new Error('Atom.redo: no more changes to redo')
-    const [applyChanges, changes] = History.getNextEntry(this.#history)
     this.#history = History.forward(this.#history)
-    this.#value = this.#changeValue(this.#value, applyChanges, changes)
-    return this.#value
+    const [applyChanges, changes] = History.getEntry(this.#history)
+    const nextValue = this.#transitionToNext(applyChanges, changes)
+    return nextValue
   }
 
   subscribe = (subscriber) => {
@@ -122,8 +118,8 @@ export class Atom {
     return value
   }
 
-  #changeValue = (currentValue, applyChanges, changes) => {
-    return Object.freeze(applyChanges(currentValue, ...changes))
+  #changeValue = (value, applyChanges, changes) => {
+    return Object.freeze(applyChanges(value, ...changes))
   }
 
   #assertHistoryEnabled = (forbiddenAction) => {
@@ -134,6 +130,19 @@ export class Atom {
     const value = History.getEntries(this.#history, 0, to)
       .reduce((acc, [applyChanges, changes]) => this.#changeValue(acc, applyChanges, changes), undefined)
     return value
+  }
+
+  #transitionToNext = (applyChanges, changes) => {
+    const nextValue = this.#transition((previousValue) => this.#changeValue(previousValue, applyChanges, changes))
+    return nextValue
+  }
+
+  #transition = (changeValue) => {
+    const previousValue = this.#value
+    const nextValue = changeValue(previousValue)
+    this.#value = nextValue
+    for (const subscriber of this.#subscribers) subscriber(nextValue, previousValue)
+    return nextValue
   }
 }
 
@@ -146,7 +155,7 @@ const History = {
   make: ({entries = [], cursor = entries.length - 1} = {}) => ({entries, cursor}),
   getCursor: ({cursor}) => cursor,
   getEntries: ({entries}, from = 0, to) => entries.slice(from, to + 1),
-  getNextEntry: ({entries, cursor}) => entries.at(cursor + 1),
+  getEntry: ({entries, cursor}) => entries.at(cursor),
   hasEntry: ({entries}, index) => index in entries,
   hasPreviousEntry: ({cursor}) => cursor > 0,
   hasNextEntry: ({cursor, entries}) => cursor < entries.length - 1,
