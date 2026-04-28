@@ -1,22 +1,27 @@
-// TODO: test
 export class EventEmitter {
   on(event, listener) {
-    this.#listenersByEvent[event] = [...this.#listenersByEvent[event] ?? [], listener]
+    if (!this.#listenersByEvent.has(event)) this.#listenersByEvent.set(event, new Set())
+    const listeners = this.#listenersByEvent.get(event)
+    listeners.add(listener)
+    return () => this.off(event, listener)
+  }
 
-    return () => {
-      this.#listenersByEvent[event] = this.#listenersByEvent[event]
-        .filter(fn => fn !== listener)
-    }
+  once(event, listener) {
+    const off = this.on(event, (...args) => {
+      off()
+      listener(...args)
+    })
   }
 
   off(event, listener) {
-    this.#listenersByEvent[event] = this.#listenersByEvent[event]
-      ?.filter(eventListener => eventListener !== listener)
+    const listeners = this.#listenersByEvent.get(event)
+    listeners?.delete(listener)
+    if (listeners?.size === 0) this.#listenersByEvent.delete(event)
   }
 
   emit(event, params) {
-    this.#listenersByEvent[event]?.forEach(listener => listener(params))
+    this.#listenersByEvent.get(event)?.forEach(listener => listener(params))
   }
 
-  #listenersByEvent = {}
+  #listenersByEvent = new Map()
 }
