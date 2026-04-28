@@ -64,8 +64,8 @@ suite('Atom', () => {
       assert.deepEqual(atom.get(), {prop: 'updated value', anotherProp: 'another value'})
     })
 
-    test('forbids state mutation', () => {
-      const atom = new Atom({}, {withHistory: true})
+    test('forbids state mutation (by reference)', () => {
+      const atom = new Atom({prop: 'initial value'}, {withHistory: true})
 
       assert.throws(() => atom.update((model) => (model.prop = 'value')), TypeError)
     })
