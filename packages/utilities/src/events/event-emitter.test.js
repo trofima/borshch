@@ -1,6 +1,6 @@
 import {assert} from 'chai'
 import {EventEmitter} from './event-emitter.js'
-import {FunctionSpy} from './spy.js'
+import {FunctionSpy} from '../test/spy.js'
 
 suite('EventEmitter', () => {
   suite('subscription', () => {

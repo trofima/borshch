@@ -1,5 +1,5 @@
 import {assert} from 'chai'
-import {mixin} from './mixin.js'
+import {mixin} from '../mixin.js'
 
 suite('mixin', () => {
   test('include mixins to Base class prototype', async () => {
