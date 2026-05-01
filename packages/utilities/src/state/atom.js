@@ -13,9 +13,14 @@ export class Atom {
     return atom.reset()
   }
 
-  static get(atom, index) {
+  static get(atom, getFromValue = (value) => value) {
     assertAtom(atom, 'Atom.get can get value only from atoms')
-    return atom.get(index)
+    return atom.get(getFromValue)
+  }
+
+  static at(atom, index) {
+    assertAtom(atom, 'Atom.at can get value by index only from atoms')
+    return atom.at(index)
   }
 
   static undo(atom) {
@@ -60,9 +65,18 @@ export class Atom {
     return this.get()
   }
 
-  get = (index) => this.#history
-    ? this.#getFromHistory(index)
-    : this.#value
+  // TODO: get(getFromValue?) - convenience getter function from value
+  get = (getFromValue = (value) => value) => {
+    const value = this.#history
+      ? this.#getFromHistory()
+      : this.#value
+    return getFromValue(value)
+  }
+
+  at = (index) => {
+    this.#assertHistoryEnabled('at')
+    return this.#getFromHistory(index)
+  }
 
   update = (applyChanges, ...changes) => {
     if (this.#history) this.#history = History.addEntry(this.#history, [applyChanges, changes])

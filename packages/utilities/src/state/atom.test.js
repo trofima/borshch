@@ -31,6 +31,55 @@ suite('Atom', () => {
     })
   })
 
+  suite('getting state', () => {
+    test('get state', async () => {
+      const atom = new Atom()
+      atom.init('initial value')
+
+      assert.deepEqual(atom.get(), 'initial value')
+
+      atom.update(() => 'updated value')
+
+      assert.deepEqual(atom.get(), 'updated value')
+    })
+
+    test('get value from state using a selector function', async () => {
+      const atom = new Atom('value')
+      const getLength = (value) => value.length
+      const getFirstChar = (value) => value[0]
+
+      assert.deepEqual(atom.get(), 'value')
+      assert.deepEqual(atom.get(getLength), 5)
+      assert.deepEqual(atom.get(getFirstChar), 'v')
+    })
+
+    test('get value from state using a selector function when history is enabled', async () => {
+      const atom = new Atom('value', {withHistory: true})
+      const getLength = (value) => value.length
+      const getFirstChar = (value) => value[0]
+
+      assert.deepEqual(atom.get(), 'value')
+      assert.deepEqual(atom.get(getLength), 5)
+      assert.deepEqual(atom.get(getFirstChar), 'v')
+    })
+
+    test('get state by index', async () => {
+      const atom = new Atom('initial value', {withHistory: true})
+      atom.update(() => 'value 1')
+      atom.update(() => 'value 2')
+
+      assert.deepEqual(atom.at(0), 'initial value')
+      assert.deepEqual(atom.at(1), 'value 1')
+      assert.deepEqual(atom.at(2), 'value 2')
+    })
+
+    test('throw error on getting state by index without history', async () => {
+      const atom = new Atom('initial value')
+
+      assert.throws(() => atom.at(0), Error, 'Atom.at: history is not enabled')
+    })
+  })
+
   suite('updating state', () => {
     test('update state', async () => {
       const atom = new Atom()
@@ -136,17 +185,17 @@ suite('Atom', () => {
       const state1 = atom.update(() => 'value')
       const state2 = atom.update(() => 'updated value')
 
-      assert.deepEqual(atom.get(0), 'initial value')
+      assert.deepEqual(atom.at(0), 'initial value')
 
-      assert.deepEqual(atom.get(1), 'value')
+      assert.deepEqual(atom.at(1), 'value')
       assert.deepEqual(state1, 'value')
 
-      assert.deepEqual(atom.get(2), 'updated value')
+      assert.deepEqual(atom.at(2), 'updated value')
       assert.deepEqual(state2, 'updated value')
-      assert.deepEqual(atom.get(), 'updated value')
+      assert.deepEqual(atom.at(), 'updated value')
 
-      assert.throw(() => atom.get(4), Error, 'Atom.get: history entry at index 4 does not exist')
-      assert.throw(() => atom.get(5), Error, 'Atom.get: history entry at index 5 does not exist')
+      assert.throw(() => atom.at(4), Error, 'Atom.get: history entry at index 4 does not exist')
+      assert.throw(() => atom.at(5), Error, 'Atom.get: history entry at index 5 does not exist')
     })
 
     test('clear history on atom reset', async () => {
@@ -156,7 +205,7 @@ suite('Atom', () => {
 
       atom.reset()
 
-      assert.throw(() => atom.get(1), Error, 'Atom.get: history entry at index 1 does not exist')
+      assert.throw(() => atom.at(1), Error, 'Atom.get: history entry at index 1 does not exist')
     })
 
     test('undo state update', async () => {
@@ -181,8 +230,8 @@ suite('Atom', () => {
       atom.undo()
       atom.undo()
 
-      assert.deepEqual(atom.get(1), 'value 1')
-      assert.deepEqual(atom.get(2), 'value 2')
+      assert.deepEqual(atom.at(1), 'value 1')
+      assert.deepEqual(atom.at(2), 'value 2')
     })
 
     test('update resets further history', () => {
@@ -195,8 +244,8 @@ suite('Atom', () => {
 
       atom.undo()
 
-      assert.deepEqual(atom.get(1), 'history truncating value')
-      assert.throws(() => atom.get(2), Error, 'Atom.get: history entry at index 2 does not exist')
+      assert.deepEqual(atom.at(1), 'history truncating value')
+      assert.throws(() => atom.at(2), Error, 'Atom.get: history entry at index 2 does not exist')
     })
 
     test('throw error on undo without history', async () => {
@@ -287,7 +336,9 @@ suite('Atom', () => {
 
       assert.throw(() => Atom.get(''), 'Atom.get can get value only from atoms. Got \'String\' instead')
       assert.deepEqual(Atom.get(atom), {prop: 'value'})
-      assert.deepEqual(Atom.get(atom, 0), {prop: 'initial value'})
+      assert.deepEqual(Atom.get(atom, (value) => value.prop), 'value')
+      assert.throw(() => Atom.at('', 0), 'Atom.at can get value by index only from atoms. Got \'String\' instead')
+      assert.deepEqual(Atom.at(atom, 0), {prop: 'initial value'})
 
       const subscriber1 = new FunctionSpy()
       const subscriber2 = new FunctionSpy()
@@ -303,4 +354,6 @@ suite('Atom', () => {
       assert.deepEqual(subscriber2.lastCall, [{prop: 'another value'}, {prop: 'value'}])
     })
   })
+
+  // TODO: usage example for entity
 })
